@@ -39,6 +39,7 @@ import {
   getComments,
   likeComment,
   deleteComment,
+  getRelatedPosts,
 } from "../appwrite/api/posts";
 
 import {
@@ -176,6 +177,13 @@ export const useGetUserPosts = (userId: string) => {
     enabled: !!userId,
   });
 };
+export const useGetRelatedPosts = (postId: string, tags: string[]) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_RELATED_POSTS, postId],
+    queryFn: () => getRelatedPosts(postId, tags),
+    enabled: !!postId,
+  });
+};
 
 export const useUpdatePost = () => {
   const queryClient = useQueryClient();
@@ -254,14 +262,14 @@ export const useUpdateUser = () => {
   });
 };
 
-export const useCreateComment = (postId: string) => {
+export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (comment: INewComment) => createComment(comment),
-    onSuccess: () =>
+    onSuccess: (data) =>
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
+        queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id],
       }),
   });
 };
@@ -305,17 +313,17 @@ export const useDeleteComment = (postId: string) => {
   });
 };
 
-export const useFollowUser = (data: IFollowUser) => {
+export const useFollowUser = (info: IFollowUser) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => followUser(data),
-    onSuccess: () => {
+    mutationFn: () => followUser(info),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data.followerId],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, data?.followerId.$id],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data.followingId],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS, data?.followingId.$id],
       });
     },
   });
@@ -328,10 +336,10 @@ export const useUnFollowUser = (data: IFollowUser) => {
     mutationFn: () => unFollowUser(data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data.followerId],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, data?.followerId],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data.followingId],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS, data?.followingId],
       });
     },
   });

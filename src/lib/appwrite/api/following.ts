@@ -2,45 +2,6 @@ import { ID, Query } from "appwrite";
 import { appwriteConfig, databases } from "../config";
 import { IFollowUser } from "@/types";
 
-export async function followUser(data: IFollowUser) {
-  try {
-    const isAlreadyFollowingUser = await isFollowingUser(data);
-
-    if (isAlreadyFollowingUser?.isFollowing) return;
-
-    const followingUser = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.followsCollectionId,
-      ID.unique(),
-      { ...data }
-    );
-
-    if (!followingUser) throw Error;
-
-    return { success: true };
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function unFollowUser(data: IFollowUser) {
-  try {
-    const following = await isFollowingUser(data);
-
-    if (!following) throw Error;
-
-    await databases.deleteDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.followsCollectionId,
-      following.$id
-    );
-
-    return { success: true };
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 export async function isFollowingUser(data: IFollowUser) {
   try {
     const following = await databases.listDocuments(
@@ -65,6 +26,45 @@ export async function isFollowingUser(data: IFollowUser) {
   }
 }
 
+export async function followUser(data: IFollowUser) {
+  try {
+    const isAlreadyFollowingUser = await isFollowingUser(data);
+
+    if (isAlreadyFollowingUser?.isFollowing) return;
+
+    const followingUser = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followsCollectionId,
+      ID.unique(),
+      { ...data }
+    );
+
+    if (!followingUser) throw Error;
+
+    return followingUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function unFollowUser(data: IFollowUser) {
+  try {
+    const following = await isFollowingUser(data);
+
+    if (!following) throw Error;
+
+    await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followsCollectionId,
+      following.$id
+    );
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function getUserFollowers(userId: string) {
   try {
     const followers = await databases.listDocuments(
@@ -74,10 +74,10 @@ export async function getUserFollowers(userId: string) {
         Query.equal("followerId", userId),
         Query.select([
           "$id",
-          "followerId.name",
-          "followerId.username",
-          "followerId.$id",
-          "followerId.imageUrl",
+          "followingId.name",
+          "followingId.username",
+          "followingId.$id",
+          "followingId.imageUrl",
         ]),
       ]
     );
@@ -87,10 +87,10 @@ export async function getUserFollowers(userId: string) {
     const documents = followers.documents.map((doc) => {
       return {
         $id: doc.$id,
-        name: doc.followerId.name,
-        username: doc.followerId.username,
-        userId: doc.followerId.$id,
-        imageUrl: doc.followerId.imageUrl,
+        name: doc.followingId.name,
+        username: doc.followingId.username,
+        userId: doc.followingId.$id,
+        imageUrl: doc.followingId.imageUrl,
       };
     });
 
@@ -114,10 +114,10 @@ export async function getUserFollowings(userId: string) {
         Query.equal("followingId", userId),
         Query.select([
           "$id",
-          "followingId.name",
-          "followingId.username",
-          "followingId.$id",
-          "followingId.imageUrl",
+          "followerId.name",
+          "followerId.username",
+          "followerId.$id",
+          "followerId.imageUrl",
         ]),
       ]
     );
@@ -127,10 +127,10 @@ export async function getUserFollowings(userId: string) {
     const documents = followings.documents.map((doc) => {
       return {
         $id: doc.$id,
-        name: doc.followingId.name,
-        username: doc.followingId.username,
-        userId: doc.followingId.$id,
-        imageUrl: doc.followingId.imageUrl,
+        name: doc.followerId.name,
+        username: doc.followerId.username,
+        userId: doc.followerId.$id,
+        imageUrl: doc.followerId.imageUrl,
       };
     });
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Models } from "appwrite";
-import { checkIsLiked } from "@/lib/utils";
+import { checkIsLiked, cn } from "@/lib/utils";
 import {
   useDeleteSavedPost,
   useGetCurrentUser,
@@ -15,9 +15,10 @@ type PostStatsProps = {
   post: Models.Document;
   userId: string;
   comments?: number;
+  showComments?: boolean
 };
 
-const PostStats = ({ post, userId, comments }: PostStatsProps) => {
+const PostStats = ({ post, userId, comments, showComments = true }: PostStatsProps) => {
   const likesList = post.likes.map((user: Models.Document) => user.$id);
 
   const { isShareModalOpen, setShareModalOpen } = useShareContext();
@@ -113,20 +114,24 @@ const PostStats = ({ post, userId, comments }: PostStatsProps) => {
           <p className="small-medium lg:base-medium">0</p>
         </div>
 
-        <div className="flex-center gap-2">
-          <img
-            src={"/assets/icons/chat.svg"}
-            alt="comment"
-            width={20}
-            height={20}
-            // onClick={handleSharePost}
-            className="cursor-pointer"
-          />
-          <p className="small-medium lg:base-medium">{comments}</p>
-        </div>
+        {showComments && (
+          <div className="flex-center gap-2">
+            <img
+              src={"/assets/icons/chat.svg"}
+              alt="comment"
+              width={20}
+              height={20}
+              // onClick={handleSharePost}
+              className="cursor-pointer"
+            />
+            <p className="small-medium lg:base-medium">{comments || 0}</p>
+          </div>
+        )}
       </div>
 
-      <div className="flex gap-2">
+      <div className={cn("flex gap-2", {
+        "ml-3": showComments === false
+      })}>
         {isSavingPost || isDeletingSavedPost ? (
           <Loader />
         ) : (

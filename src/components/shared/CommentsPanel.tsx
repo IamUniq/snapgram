@@ -1,20 +1,18 @@
-import { useLikeComment, useDeleteComment } from "@/lib/react-query/queriesAndMutations"
+import { useDeleteComment, useLikeComment } from "@/lib/react-query/queriesAndMutations"
 import { checkIsLiked, cn, multiFormatDateString as formatDate } from "@/lib/utils"
 import { Models } from "appwrite"
 import { UndoDot } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import Loader from "./Loader"
 
 const CommentsPanel = (
-    { userId, postId, comment }:
-        { userId: string, postId: string, comment: Models.Document }
+    { userId, comment }:
+        { userId: string, comment: Models.Document }
 ) => {
     const [readMore, setReadMore] = useState(false)
     const [likes, setLikes] = useState<string[]>(comment.likes)
 
     const { mutate: likeComment } = useLikeComment();
-    const { mutateAsync: deleteComment, isPending: isDeletingComment } = useDeleteComment(postId)
 
     const handleLikeComment = (e: React.MouseEvent<HTMLOrSVGImageElement>) => {
         e.stopPropagation();
@@ -33,11 +31,7 @@ const CommentsPanel = (
         likeComment({ commentId: comment.$id, likesArray: newLikes });
     }
 
-    const handleDeleteComment = async (e: React.MouseEvent<HTMLOrSVGImageElement>) => {
-        e.stopPropagation();
 
-        await deleteComment(comment.$id)
-    }
 
     return (
         <div className="flex items-start gap-2 w-full">
@@ -86,33 +80,22 @@ const CommentsPanel = (
                 </div>
             </div>
 
-            <div className="flex items-center gap-4 w-20 place-items-start">
-                <div className="flex items-center">
-                    <img
-                        src={
-                            checkIsLiked(likes, userId)
-                                ? "/assets/icons/liked.svg"
-                                : "/assets/icons/like.svg"
-                        }
-                        alt="like"
-                        width={20}
-                        height={20}
-                        onClick={handleLikeComment}
-                        className="cursor-pointer"
-                    />
-                    <p className="small-medium lg:base-medium ml-1">{likes.length}</p>
-                </div>
-
-                {isDeletingComment
-                    ? <Loader />
-                    : <img
-                        src="/assets/icons/delete.svg"
-                        alt="delete" width={20} height={20}
-                        onClick={handleDeleteComment}
-                        className="cursor-pointer"
-                    />
-                }
-
+            <div className="flex items-center place-items-start">
+                <img
+                    src={
+                        checkIsLiked(likes, userId)
+                            ? "/assets/icons/liked.svg"
+                            : "/assets/icons/like.svg"
+                    }
+                    alt="like"
+                    width={20}
+                    height={20}
+                    onClick={handleLikeComment}
+                    className="cursor-pointer"
+                />
+                <p className="small-medium lg:base-medium ml-1">
+                    {likes.length}
+                </p>
             </div>
         </div>
     )

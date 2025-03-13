@@ -14,20 +14,18 @@ const Profile = () => {
   const { id } = useParams()
   const { pathname } = useLocation()
 
-  const { data: currentUser } = useGetUserById(id || "")
+  const { data: currentUser, isPending: isGettingUser } = useGetUserById(id || "")
   const { data: userPosts, isPending: isGettingUserPosts } = useGetUserPosts(id || "")
 
-  if (!currentUser || !id)
+  if (!currentUser || isGettingUser)
     return (
       <div className="flex-center w-full h-full">
         <Loader />
       </div>
     );
 
-  const { data: userFollowers } = useGetUserFollowers(id)
-  const { data: userFollowings } = useGetUserFollowings(id)
-
-  // const isInFollowingTab = 
+  const { data: userFollowers } = useGetUserFollowers(currentUser.$id)
+  const { data: userFollowings } = useGetUserFollowings(currentUser.$id)
 
   return (
     <div className="profile-container">
@@ -75,7 +73,7 @@ const Profile = () => {
               <p className="body-bold text-primary-500">{userFollowers?.total || 0}</p>
               <p className="small-medium lg:base-medium text-light-2">Followers</p>
             </Link>
-            <Link to={`/profile/${id}/${userFollowings?.total! > 0 ? "following" : ""}`} className="flex flex-col">
+            <Link to={`/profile/${id}/following`} className="flex flex-col">
               <p className="body-bold text-primary-500">{userFollowings?.total || 0}</p>
               <p className="small-medium lg:base-medium text-light-2">Following</p>
             </Link>
@@ -122,12 +120,11 @@ const Profile = () => {
 
         <div
           className={cn("profile-tab rounded-r-lg hidden", {
-            "flex !bg-dark-3 rounded-r-lg": pathname === `/profile/${id}/"followers"}` || pathname === `/profile/${id}/following`
+            "flex !bg-dark-3 rounded-r-lg": pathname.endsWith("/followers") || pathname.endsWith("/following")
           })}>
           {pathname === `/profile/${id}/following` ? "Following" : "Followers"}
         </div>
       </div>
-
 
       <Routes>
         <Route

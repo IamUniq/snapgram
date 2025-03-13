@@ -15,6 +15,7 @@ import {
   Profile,
   Saved,
   UpdateProfile,
+  Settings
 } from "./_root/pages";
 import { Toaster } from "./components/ui/toaster";
 import EditProfile from "./_root/pages/EditProfile";
@@ -40,6 +41,7 @@ const App = () => {
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:id/*" element={<Profile />} />
           <Route path="/profile/:id/edit" element={<EditProfile />} />
+          <Route path="/profile/:id/settings" element={<Settings />} />
           {/* Chat */}
           <Route path="/profile/:id/chat" element={<EditProfile />} />
           <Route path="/update-profile/:id" element={<UpdateProfile />} />

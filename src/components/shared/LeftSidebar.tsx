@@ -5,20 +5,21 @@ import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
+import { Settings } from "lucide-react"
 
 const LeftSidebar = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  const { mutate: signOut, isSuccess } = useSignoutAccount();
   const { user } = useUserContext();
+  const { mutate: signOut, isSuccess } = useSignoutAccount();
 
   useEffect(() => {
     if (isSuccess) navigate(0);
   }, [isSuccess]);
 
   return (
-    <nav className="leftsidebar gap-8">
+    <nav className="leftsidebar gap-16">
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
           <img
@@ -51,7 +52,7 @@ const LeftSidebar = () => {
           </div>
         </Link>
 
-        <ul className="flex flex-col gap-6">
+        <ul className="flex flex-col gap-4">
           {sidebarLinks.map((link) => {
             const isActive = pathname === link.route;
 
@@ -81,14 +82,30 @@ const LeftSidebar = () => {
         </ul>
       </div>
 
-      <Button
-        variant={"ghost"}
-        className="shad-button_ghost"
-        onClick={() => signOut()}
-      >
-        <img src="/assets/icons/logout.svg" alt="logout" />
-        <p className="small-medium lg:base-medium">Logout</p>
-      </Button>
+      <div className="flex flex-col gap-4">
+        <Button
+          variant={"ghost"}
+          className="shad-button_ghost"
+          onClick={() => signOut()}
+        >
+          <img src="/assets/icons/logout.svg" alt="logout" />
+          <p className="small-medium lg:base-medium">Logout</p>
+        </Button>
+
+        <Link
+          to={`/profile/${user.id}/settings`}
+          className={cn("flex gap-4 items-center p-4 group leftsidebar-link", {
+            "bg-primary-500": pathname === `/profile/${user.id}/settings`,
+          })}
+        >
+          <Settings
+            className={cn("text-primary-500 group-hover:invert-white", {
+              "invert-white": pathname === `/profile/${user.id}/settings`,
+            })}
+          />
+          Settings
+        </Link>
+      </div>
     </nav>
   );
 };

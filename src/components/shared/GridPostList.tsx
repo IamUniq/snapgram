@@ -7,8 +7,9 @@ type GridPostListProps = {
     posts: Models.Document[] | undefined
     showUser?: boolean
     showStats?: boolean
+    showComments?: boolean
 }
-const GridPostList = ({ posts, showUser = true, showStats = true }: GridPostListProps) => {
+const GridPostList = ({ posts, showUser = true, showStats = true, showComments = false }: GridPostListProps) => {
     const { user } = useUserContext()
 
     return (
@@ -27,7 +28,13 @@ const GridPostList = ({ posts, showUser = true, showStats = true }: GridPostList
                             </div>
                         )}
 
-                        {showStats && <PostStats post={post} userId={user.id} />}
+                        {showStats && (
+                            <PostStats
+                                post={post}
+                                userId={user.id}
+                                showComments={false}
+                            />
+                        )}
                     </div>
                 </li>
             )) : (

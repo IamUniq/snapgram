@@ -170,6 +170,22 @@ export async function getPostById(postId: string) {
   }
 }
 
+export async function getRelatedPosts(postId: string, tags: string[]) {
+  try {
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postsCollectionId,
+      [Query.contains("tags", tags), Query.notEqual("$id", postId)]
+    );
+
+    if (!posts) throw Error;
+
+    return posts.documents;
+  } catch (error) {
+    console.log("error");
+  }
+}
+
 export async function getUserPosts(userId: string) {
   try {
     const userPosts = await databases.listDocuments(

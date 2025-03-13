@@ -12,7 +12,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
 
     const { toast } = useToast()
 
-    const { mutateAsync: createComment, isPending: isCreatingComment, isError: isCommentingError } = useCreateComment(postId)
+    const { mutateAsync: createComment, isPending: isCreatingComment, isError: isCommentingError } = useCreateComment()
 
     async function handleCommentSubmit() {
         const commentData = {

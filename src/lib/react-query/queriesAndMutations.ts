@@ -1,11 +1,11 @@
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import {
+  IFollowUser,
+  INewComment,
   INewPost,
   INewUser,
   IUpdatePost,
   IUpdateUser,
-  INewComment,
-  IFollowUser,
 } from "@/types";
 import {
   useInfiniteQuery,
@@ -16,38 +16,38 @@ import {
 import {
   createUserAccount,
   getCurrentUser,
+  getUserById,
   getUsers,
   signInAccount,
   signOutAccount,
   updateUser,
-  getUserById,
 } from "../appwrite/api/users";
 
 import {
+  createComment,
   createPost,
+  deleteComment,
   deletePost,
   deleteSavedPost,
+  getComments,
   getInfinitePosts,
   getPostById,
-  getUserPosts,
   getRecentPosts,
+  getRelatedPosts,
+  getUserPosts,
+  likeComment,
   likePost,
   savePost,
   searchPosts,
   updatePost,
-  createComment,
-  getComments,
-  likeComment,
-  deleteComment,
-  getRelatedPosts,
 } from "../appwrite/api/posts";
 
 import {
   followUser,
-  unFollowUser,
-  isFollowingUser,
   getUserFollowers,
   getUserFollowings,
+  isFollowingUser,
+  unFollowUser,
 } from "../appwrite/api/following";
 
 export const useCreateUserAccount = () => {
@@ -177,6 +177,7 @@ export const useGetUserPosts = (userId: string) => {
     enabled: !!userId,
   });
 };
+
 export const useGetRelatedPosts = (postId: string, tags: string[]) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_RELATED_POSTS, postId],
@@ -269,7 +270,7 @@ export const useCreateComment = () => {
     mutationFn: (comment: INewComment) => createComment(comment),
     onSuccess: (data) =>
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id],
+        queryKey: [QUERY_KEYS.GET_COMMENTS, data?.post.$id],
       }),
   });
 };

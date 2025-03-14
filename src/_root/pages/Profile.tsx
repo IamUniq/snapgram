@@ -16,6 +16,8 @@ const Profile = () => {
 
   const { data: currentUser, isPending: isGettingUser } = useGetUserById(id || "")
   const { data: userPosts, isPending: isGettingUserPosts } = useGetUserPosts(id || "")
+  const { data: userFollowers } = useGetUserFollowers(id || "")
+  const { data: userFollowings } = useGetUserFollowings(id || "")
 
   if (!currentUser || isGettingUser)
     return (
@@ -23,9 +25,6 @@ const Profile = () => {
         <Loader />
       </div>
     );
-
-  const { data: userFollowers } = useGetUserFollowers(currentUser.$id)
-  const { data: userFollowings } = useGetUserFollowings(currentUser.$id)
 
   return (
     <div className="profile-container">
@@ -117,13 +116,6 @@ const Profile = () => {
             Liked Posts
           </Link>
         )}
-
-        <div
-          className={cn("profile-tab rounded-r-lg hidden", {
-            "flex !bg-dark-3 rounded-r-lg": pathname.endsWith("/followers") || pathname.endsWith("/following")
-          })}>
-          {pathname === `/profile/${id}/following` ? "Following" : "Followers"}
-        </div>
       </div>
 
       <Routes>

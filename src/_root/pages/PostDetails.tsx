@@ -8,7 +8,7 @@ import Loader from "@/components/shared/Loader";
 import PostStats from "@/components/shared/PostStats";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/context/AuthContext";
-import { useGetComments, useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
+import { useDeletePost, useGetComments, useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
 
 const PostDetails = () => {
   const navigate = useNavigate()
@@ -19,7 +19,11 @@ const PostDetails = () => {
   const { data: comments, isPending: isCommentsPending } = useGetComments(post?.$id!)
   const { data: relatedPosts, isPending: isGettingRelatedPosts } = useGetRelatedPosts(post?.$id!, post?.tags)
 
-  const handleDeletePost = () => {
+  const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
+
+  const handleDeletePost = async () => {
+    await deletePost({ postId: post?.$id!, imageId: post?.imageId })
+    navigate(-1)
   }
 
   return (
@@ -90,6 +94,7 @@ const PostDetails = () => {
                     <Button
                       onClick={handleDeletePost}
                       variant="ghost"
+                      disabled={isDeletingPost}
                       className={`ghost_details-delete_btn ${user.id !== post.creator.$id && "hidden"}`}
                     >
                       <img src="/assets/icons/delete.svg" alt="delete" width={24} height={24} />

@@ -6,6 +6,7 @@ import App from "./App";
 import { QueryProvider } from "./lib/react-query/QueryProvider";
 import { AuthProvider } from "./context/AuthContext";
 import { SharePostProvider } from "./context/SharePostContext";
+import { CommentsProvider } from "./context/CommentsContext";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById("root")!).render(
       <QueryProvider>
         <AuthProvider>
           <SharePostProvider>
-            <App />
+            <CommentsProvider>
+              <App />
+            </CommentsProvider>
           </SharePostProvider>
         </AuthProvider>
       </QueryProvider>

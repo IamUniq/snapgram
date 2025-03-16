@@ -9,3 +9,4 @@ export { default as Saved } from "./Saved";
 export { default as UpdateProfile } from "./UpdateProfile";
 export { default as LikedPosts } from "./LikedPosts";
 export { default as Settings } from "./Settings";
+export { default as Notifications } from "./Notifications";

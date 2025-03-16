@@ -1,34 +1,63 @@
-import { Card, CardContent } from "@/components/ui/card"
 import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
+    type CarouselApi,
 } from "@/components/ui/carousel"
+import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
-const ImageView = ({ images }: { images: string[] }) => {
+const ImageView = ({ images, containerClassname, className }: { images: string[], containerClassname?: string, className?: string }) => {
+    const [api, setApi] = useState<CarouselApi>()
+    const [current, setCurrent] = useState(0)
+    const [count, setCount] = useState(0)
+
+    useEffect(() => {
+        if (!api) {
+            return
+        }
+
+        setCount(api.scrollSnapList().length)
+        setCurrent(api.selectedScrollSnap() + 1)
+
+        api.on("select", () => {
+            setCurrent(api.selectedScrollSnap() + 1)
+        })
+    }, [api])
+
+    const goToSlide = (index: number) => {
+        api?.scrollTo(index)
+    }
     return (
-        <div className="mx-auto max-w-xs">
-            <Carousel className="w-full max-w-xs">
-                <CarouselContent>
-                    {images.map((url, index) => (
-                        <CarouselItem key={index}>
-                            <Card>
-                                <CardContent className="flex aspect-square items-center justify-center p-6">
-                                    <img
-                                        src={url}
-                                    // className="file_uploader-img"
-                                    />
-                                </CardContent>
-                            </Card>
-                        </CarouselItem>
+        <Carousel setApi={setApi} className={cn("", containerClassname)}>
+            <CarouselContent>
+                {images.map((url, index) => (
+                    <CarouselItem key={index}>
+                        <img
+                            src={url || "/assets/icons/profile-placeholder.svg"}
+                            className={cn("", className)}
+                        />
+                    </CarouselItem>
+                ))}
+
+            </CarouselContent>
+            {count > 1 && (
+                <div className="absolute bottom-7 right-1/2 -translate-x-1/2 flex gap-2 justify-center z-10">
+                    {Array.from({ length: count }).map((_, index) => (
+                        <button
+                            key={index}
+                            className={cn(
+                                "w-2.5 h-2.5 bg-white rounded-full transition-all", {
+                                "bg-primary-500 scale-125": current === (index + 1)
+                            }
+                            )}
+                            onClick={() => goToSlide(index)}
+                            aria-label={`Go to slide ${index + 1}`}
+                        />
                     ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-            </Carousel>
-        </div>
+                </div>
+            )}
+        </Carousel>
     )
 }
 

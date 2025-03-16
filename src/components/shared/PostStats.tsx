@@ -10,6 +10,7 @@ import {
 import { useShareContext } from "@/context/SharePostContext";
 import Loader from "./Loader";
 import ShareOptionsModal from "./ShareOptionsModal";
+import { useCommentContext } from "@/context/CommentsContext";
 
 type PostStatsProps = {
   post: Models.Document;
@@ -22,6 +23,7 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
   const likesList = post.likes.map((user: Models.Document) => user.$id);
 
   const { isShareModalOpen, setShareModalOpen } = useShareContext();
+  const { setCommentModalOpen } = useCommentContext()
 
   const [likes, setLikes] = useState(likesList);
   const [isSaved, setIsSaved] = useState(false);
@@ -121,7 +123,7 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
               alt="comment"
               width={20}
               height={20}
-              // onClick={handleSharePost}
+              onClick={() => setCommentModalOpen(true)}
               className="cursor-pointer"
             />
             <p className="small-medium lg:base-medium">{comments || 0}</p>

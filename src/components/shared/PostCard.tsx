@@ -4,12 +4,16 @@ import { Models } from "appwrite";
 import { Link } from "react-router-dom";
 import PostStats from "./PostStats";
 import { useGetComments } from "@/lib/react-query/queriesAndMutations";
+import ImageView from "./ImageView";
+import CommentsModal from "./CommentsModal";
+import { useCommentContext } from "@/context/CommentsContext";
 
 type PostCardProps = {
   post: Models.Document;
 };
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext();
+  const { isCommentModalOpen } = useCommentContext()
   const { data: comments } = useGetComments(post.$id)
 
   if (!post.creator) return;
@@ -52,9 +56,16 @@ const PostCard = ({ post }: PostCardProps) => {
         </Link>
       </div>
 
-      <Link to={`posts/${post.$id}`}>
-        <div className="small-medium lg:base-medium py-5">
-          <p>{post.caption}</p>
+      {isCommentModalOpen && (
+        <CommentsModal
+          userId={user.id}
+          postId={post.$id}
+        />
+      )}
+
+      <div className="mt-4">
+        <Link to={`posts/${post.$id}`} className="small-medium lg:base-medium py-5">
+          <p className="line-clamp-4 whitespace-pre-line">{post.caption}</p>
           <ul className="flex gap-1 mt-2">
             {post?.tags.map((tag: string) => (
               <li key={tag} className="text-light-3">
@@ -62,14 +73,10 @@ const PostCard = ({ post }: PostCardProps) => {
               </li>
             ))}
           </ul>
-        </div>
+        </Link>
 
-        <img
-          src={post.imageUrl || "/assets/icons/profile-placeholder.svg"}
-          className="post-card_img"
-          alt="post image"
-        />
-      </Link>
+        <ImageView images={post.imageUrls} containerClassname="pt-5" className="post-card_img" />
+      </div>
 
       <PostStats post={post} userId={user.id} comments={comments?.total} />
     </div>

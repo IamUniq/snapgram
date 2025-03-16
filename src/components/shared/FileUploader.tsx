@@ -30,7 +30,7 @@ const FileUploader = ({ fieldChange, mediaUrls }: FileUploaderProps) => {
 
       setFileUrls(newFileUrls);
 
-      fieldChange(files);
+      fieldChange(newFiles);
     },
     [files, fileUrls]
   );
@@ -93,14 +93,16 @@ const FileUploader = ({ fieldChange, mediaUrls }: FileUploaderProps) => {
           </h3>
           <p className="text-light-4 small-regular mb-6">SVG, PNG, JPG</p>
 
-          <Button type="button" className="shad-button_dark_4">
-            Select from computer
-          </Button>
+          {fileUrls.length === 0 && (
+            <Button type="button" className="shad-button_dark_4">
+              Select from computer
+            </Button>
+          )}
         </div>
       </div>
 
       {fileUrls.length > 0 && (
-        <p className="text-center text-light-4 small-regular mt-4">
+        <p className="text-center text-light-4 small-regular">
           {fileUrls.length} {fileUrls.length === 1 ? "image" : "images"} selected
         </p>
       )}
@@ -120,7 +122,7 @@ const PreviewImages = (
           {fileUrls.map((url, index) => (
             <CarouselItem key={index}>
               <Card>
-                <CardContent className="relative group flex-center h-72 lg:h-[280px] p-6">
+                <CardContent className="relative group flex-center h-60 lg:h-[280px] p-6">
                   <img
                     src={url}
                     className="file_uploader-img"

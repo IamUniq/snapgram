@@ -27,7 +27,7 @@ const FollowButton = ({ followerId, followingId }: FollowButtonProps) => {
         if (!isCurrentlyFollowing) {
             const follow = await followUser()
 
-            if (follow?.success === true) {
+            if (follow?.success !== undefined) {
                 setIsCurrentlyFollowing(true)
             }
         } else {

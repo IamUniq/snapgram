@@ -39,14 +39,14 @@ const CommentForm = ({ postId }: { postId: string }) => {
     return (
         <div className="flex gap-3 items-center">
             <img
-                src={user.imageUrl}
+                src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
                 alt="profile-image"
                 width={42}
                 height={42}
                 className="rounded-full"
             />
 
-            <form className="relative w-full" onSubmit={handleCommentSubmit}>
+            <form className="relative w-[48%]" onSubmit={handleCommentSubmit}>
                 <Input
                     type="text"
                     placeholder="Write your comment..."
@@ -60,7 +60,6 @@ const CommentForm = ({ postId }: { postId: string }) => {
                     disabled={isCreatingComment}
                     variant="ghost"
                     className="absolute -right-2 top-1/2 -translate-y-1/2 w-8 h-8 z-50"
-                // onClick={handleCommentSubmit}
                 >
                     <Send className=" text-yellow-500" />
                 </Button>

@@ -24,23 +24,26 @@ import {
 } from "../appwrite/api/users";
 
 import {
-  createComment,
   createPost,
-  deleteComment,
   deletePost,
   deleteSavedPost,
-  getComments,
   getInfinitePosts,
   getPostById,
   getRecentPosts,
   getRelatedPosts,
   getUserPosts,
-  likeComment,
   likePost,
   savePost,
   searchPosts,
   updatePost,
 } from "../appwrite/api/posts";
+
+import {
+  createComment,
+  deleteComment,
+  getComments,
+  likeComment,
+} from "../appwrite/api/comments";
 
 import {
   followUser,
@@ -268,10 +271,14 @@ export const useCreateComment = () => {
 
   return useMutation({
     mutationFn: (comment: INewComment) => createComment(comment),
-    onSuccess: (data) =>
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_COMMENTS, data?.post.$id],
       }),
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.post.$id],
+        });
+    },
   });
 };
 
@@ -319,28 +326,28 @@ export const useFollowUser = (info: IFollowUser) => {
 
   return useMutation({
     mutationFn: () => followUser(info),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, data?.followerId.$id],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS, data?.followingId.$id],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS],
       });
     },
   });
 };
 
-export const useUnFollowUser = (data: IFollowUser) => {
+export const useUnFollowUser = (userData: IFollowUser) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => unFollowUser(data),
+    mutationFn: () => unFollowUser(userData),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, data?.followerId],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS, data?.followingId],
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS],
       });
     },
   });
@@ -356,7 +363,7 @@ export const useIsFollowingUser = (data: IFollowUser) => {
 
 export const useGetUserFollowers = (userId: string) => {
   return useQuery({
-    queryKey: ["getUserFollowers", userId],
+    queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, userId],
     queryFn: () => getUserFollowers(userId),
     enabled: !!userId,
   });
@@ -364,7 +371,7 @@ export const useGetUserFollowers = (userId: string) => {
 
 export const useGetUserFollowings = (userId: string) => {
   return useQuery({
-    queryKey: ["getUserFollowings", userId],
+    queryKey: [QUERY_KEYS.GET_USER_FOLLOWINGS, userId],
     queryFn: () => getUserFollowings(userId),
     enabled: !!userId,
   });

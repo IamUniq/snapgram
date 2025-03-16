@@ -31,12 +31,10 @@ const CommentsPanel = (
         likeComment({ commentId: comment.$id, likesArray: newLikes });
     }
 
-
-
     return (
         <div className="flex items-start gap-2 w-full">
             <img
-                src={comment.commenter.imageUrl}
+                src={comment.commenter.imageUrl || "/assets/icons/profile-placeholder.svg"}
                 alt={comment.commenter.name}
                 className="rounded-full w-10 h-10"
             />

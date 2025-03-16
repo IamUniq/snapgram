@@ -1,20 +1,32 @@
+import { INewPost, IUpdatePost } from "@/types";
 import { ID, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
-import { INewComment, INewPost, IUpdatePost } from "@/types";
 
 export async function createPost(post: INewPost) {
+  const fileUrls: string[] = [];
   try {
     // upload image to storage
-    const uploadedFile = await uploadFile(post.file[0]);
+    const fileIds = await Promise.all(
+      post.file.map(async (img) => {
+        const uploadedFile = await uploadFile(img);
 
-    if (!uploadedFile) throw Error;
+        if (!uploadedFile) throw Error("Error uploading file");
 
-    // Get file url
-    const fileUrl = getFilePreview(uploadedFile.$id);
+        return uploadedFile.$id;
+      })
+    );
 
-    if (!fileUrl) {
-      deleteFile(uploadedFile.$id);
-      throw Error;
+    if (!fileIds) throw Error;
+
+    for (const id of fileIds) {
+      const fileUrl = getFilePreview(id);
+
+      if (!fileUrl) {
+        deleteFile(id);
+        throw Error;
+      }
+
+      fileUrls.push(fileUrl);
     }
 
     // Convert tags into an array
@@ -28,15 +40,19 @@ export async function createPost(post: INewPost) {
       {
         creator: post.userId,
         caption: post.caption,
-        imageUrl: fileUrl,
-        imageId: uploadedFile.$id,
+        imageUrls: fileUrls,
+        imageIds: fileIds,
         location: post.location,
         tags: tags,
       }
     );
 
     if (!newPost) {
-      await deleteFile(uploadedFile.$id);
+      await Promise.all(
+        fileIds.map(async (id) => {
+          await deleteFile(id);
+        })
+      );
       throw Error;
     }
 
@@ -95,7 +111,7 @@ export async function getRecentPosts() {
 
     if (!posts) throw Error;
 
-    return posts;
+    return posts.documents;
   } catch (error) {
     console.error(error);
   }
@@ -207,30 +223,7 @@ export async function getUserPosts(userId: string) {
 }
 
 export async function updatePost(post: IUpdatePost) {
-  const hasFileToUpdate = post.file.length > 0;
   try {
-    let image = {
-      imageUrl: post.imageUrl,
-      imageId: post.imageId,
-    };
-
-    if (hasFileToUpdate) {
-      // upload image to storage
-      const uploadedFile = await uploadFile(post.file[0]);
-
-      if (!uploadedFile) throw Error;
-
-      // Get file url
-      const fileUrl = getFilePreview(uploadedFile.$id);
-
-      if (!fileUrl) {
-        deleteFile(uploadedFile.$id);
-        throw Error;
-      }
-
-      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
-    }
-
     // Convert tags into an array
     const tags = post.tags?.replace(/ /g, "").split(",") || [];
 
@@ -241,17 +234,12 @@ export async function updatePost(post: IUpdatePost) {
       post.postId,
       {
         caption: post.caption,
-        imageUrl: image.imageUrl,
-        imageId: image.imageId,
         location: post.location,
         tags: tags,
       }
     );
 
-    if (!updatedPost) {
-      await deleteFile(image.imageId);
-      throw Error;
-    }
+    if (!updatedPost) throw Error;
 
     return updatedPost;
   } catch (error) {
@@ -306,89 +294,6 @@ export async function searchPosts(searchTerm: string) {
     if (!posts) throw Error;
 
     return posts.documents;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function createComment(comment: INewComment) {
-  try {
-    const newComment = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.commentsCollectionId,
-      ID.unique(),
-      {
-        commenter: comment.commenterId,
-        post: comment.postId,
-        quote: comment.quote,
-      }
-    );
-
-    if (!newComment) throw Error;
-
-    return newComment;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function getComments(postId: string) {
-  try {
-    const comments = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.commentsCollectionId,
-      [
-        Query.equal("post", postId),
-        Query.select([
-          "$id",
-          "quote",
-          "likes",
-          "$createdAt",
-          "commenter.$id",
-          "commenter.name",
-          "commenter.imageUrl",
-        ]),
-      ]
-    );
-
-    if (!comments) throw Error;
-
-    return comments;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function likeComment(commentId: string, likes: string[]) {
-  try {
-    const updatedComment = await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.commentsCollectionId,
-      commentId,
-      {
-        likes: likes,
-      }
-    );
-
-    if (!updatedComment) throw Error;
-
-    return updatedComment;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function deleteComment(commentId: string) {
-  try {
-    const commentToDelete = await databases.deleteDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.commentsCollectionId,
-      commentId
-    );
-
-    if (!commentToDelete) throw Error;
-
-    return { success: true };
   } catch (error) {
     console.log(error);
   }

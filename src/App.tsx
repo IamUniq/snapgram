@@ -15,7 +15,8 @@ import {
   Profile,
   Saved,
   UpdateProfile,
-  Settings
+  Settings,
+  Notifications
 } from "./_root/pages";
 import { Toaster } from "./components/ui/toaster";
 import EditProfile from "./_root/pages/EditProfile";
@@ -35,6 +36,7 @@ const App = () => {
           <Route index element={<Home />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/saved" element={<Saved />} />
+          <Route path="/notifications" element={<Notifications />} />
           <Route path="/all-users" element={<AllUsers />} />
           <Route path="/create-post" element={<CreatePost />} />
           <Route path="/update-post/:id" element={<EditPost />} />

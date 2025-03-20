@@ -17,6 +17,11 @@ export const sidebarLinks = [
     label: "People",
   },
   {
+    imgURL: "/assets/icons/notification.svg",
+    route: "/notifications",
+    label: "Notifications",
+  },
+  {
     imgURL: "/assets/icons/bookmark.svg",
     route: "/saved",
     label: "Saved",
@@ -69,3 +74,12 @@ export const shareOptions = [
     icon: ArrowDownToLine,
   },
 ];
+
+export const notificationIcons:{[key: string]: string} = {
+  like: "/assets/icons/like.svg",
+  comment: "/assets/icons/chat.svg",
+  follow: "/assets/icons/follow.svg",
+  share: "/assets/icons/share.svg",
+  newPost: "/assets/icons/gallery-add.svg",
+  save: "/assets/icons/save.svg",
+}

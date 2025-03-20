@@ -6,14 +6,14 @@ import PostStats from "./PostStats";
 import { useGetComments } from "@/lib/react-query/queriesAndMutations";
 import ImageView from "./ImageView";
 import CommentsModal from "./CommentsModal";
-import { useCommentContext } from "@/context/CommentsContext";
+import { useModalContext } from "@/context/ModalContext";
 
 type PostCardProps = {
   post: Models.Document;
 };
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext();
-  const { isCommentModalOpen } = useCommentContext()
+  const { modalToOpen } = useModalContext()
   const { data: comments } = useGetComments(post.$id)
 
   if (!post.creator) return;
@@ -56,7 +56,7 @@ const PostCard = ({ post }: PostCardProps) => {
         </Link>
       </div>
 
-      {isCommentModalOpen && (
+      {modalToOpen === 'COMMENT' && (
         <CommentsModal
           userId={user.id}
           postId={post.$id}
@@ -65,7 +65,9 @@ const PostCard = ({ post }: PostCardProps) => {
 
       <div className="mt-4">
         <Link to={`posts/${post.$id}`} className="small-medium lg:base-medium py-5">
-          <p className="line-clamp-4 whitespace-pre-line">{post.caption}</p>
+          <p className="line-clamp-4 whitespace-pre-line">
+            {post.caption}
+          </p>
           <ul className="flex gap-1 mt-2">
             {post?.tags.map((tag: string) => (
               <li key={tag} className="text-light-3">

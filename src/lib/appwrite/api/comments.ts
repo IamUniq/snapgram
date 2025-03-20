@@ -1,8 +1,9 @@
 import { INewComment } from "@/types";
 import { appwriteConfig, databases } from "../config";
 import { ID, Query } from "appwrite";
+import { createNotification } from "./users";
 
-export async function createComment(comment: INewComment) {
+export async function createComment(comment: INewComment, postCreatorId: string) {
   try {
     const newComment = await databases.createDocument(
       appwriteConfig.databaseId,
@@ -17,6 +18,13 @@ export async function createComment(comment: INewComment) {
 
     if (!newComment) throw Error;
 
+    await createNotification({
+      type: "comment",
+      targetId: postCreatorId,
+      userId: comment.commenterId,
+      postId: comment.postId,
+    })
+
     return newComment;
   } catch (error) {
     console.log(error);
@@ -30,15 +38,15 @@ export async function getComments(postId: string) {
       appwriteConfig.commentsCollectionId,
       [
         Query.equal("post", postId),
-        Query.select([
-          "$id",
-          "quote",
-          "likes",
-          "$createdAt",
-          "commenter.$id",
-          "commenter.name",
-          "commenter.imageUrl",
-        ]),
+        // Query.select([
+        //   "$id",
+        //   "quote",
+        //   "likes",
+        //   "$createdAt",
+        //   "commenter.$id",
+        //   "commenter.name",
+        //   "commenter.imageUrl",
+        // ]),
       ]
     );
 

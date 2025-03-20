@@ -10,6 +10,10 @@ import PostCard from "./PostCard";
 import PostStats from "./PostStats";
 import SearchResults from "./SearchResults";
 import Topbar from "./Topbar";
+import CommentsModal from "./CommentsModal";
+import DeleteModal from "./DeleteModal";
+import ShareModal from "./ShareModal";
+import NotificationCard from "./NotificationCard";
 
 export {
   Bottombar,
@@ -24,4 +28,8 @@ export {
   PostStats,
   SearchResults,
   Topbar,
+  CommentsModal,
+  DeleteModal,
+  ShareModal,
+  NotificationCard
 };

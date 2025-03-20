@@ -1,6 +1,7 @@
-import { INewPost, IUpdatePost } from "@/types";
+import { ILikePost, INewPost, IUpdatePost } from "@/types";
 import { ID, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
+import { createNotification } from "./users";
 
 export async function createPost(post: INewPost) {
   const fileUrls: string[] = [];
@@ -117,7 +118,7 @@ export async function getRecentPosts() {
   }
 }
 
-export async function likePost(postId: string, likesArray: string[]) {
+export async function likePost({postId, targetId, userId, likesArray}: ILikePost) {
   try {
     const updatedPost = await databases.updateDocument(
       appwriteConfig.databaseId,
@@ -130,13 +131,22 @@ export async function likePost(postId: string, likesArray: string[]) {
 
     if (!updatedPost) throw Error;
 
+    if (targetId && userId) {
+      await createNotification({
+        type: 'like',
+        targetId,
+        userId,
+        postId
+      }) 
+    }
+
     return updatedPost;
   } catch (error) {
     console.error(error);
   }
 }
 
-export async function savePost(postId: string, userId: string) {
+export async function savePost({postId, userId, targetId}: {[key: string]: string}) {
   try {
     const updatedPost = await databases.createDocument(
       appwriteConfig.databaseId,
@@ -149,6 +159,13 @@ export async function savePost(postId: string, userId: string) {
     );
 
     if (!updatedPost) throw Error;
+
+    await createNotification({
+      type: 'save',
+      targetId,
+      userId,
+      postId
+    })
 
     return updatedPost;
   } catch (error) {

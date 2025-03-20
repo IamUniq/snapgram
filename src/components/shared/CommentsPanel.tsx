@@ -1,4 +1,4 @@
-import { useDeleteComment, useLikeComment } from "@/lib/react-query/queriesAndMutations"
+import { useLikeComment } from "@/lib/react-query/queriesAndMutations"
 import { checkIsLiked, cn, multiFormatDateString as formatDate } from "@/lib/utils"
 import { Models } from "appwrite"
 import { UndoDot } from "lucide-react"
@@ -62,7 +62,6 @@ const CommentsPanel = (
                                 {readMore ? "See less" : "Read more"}
                             </span>
                         )}
-
                     </p>
                 </div>
 

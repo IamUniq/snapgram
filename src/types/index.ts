@@ -66,7 +66,21 @@ export type INewComment = {
   quote: string;
 };
 
+export type ILikePost = {
+  postId: string;
+  targetId?: string;
+  userId?: string;
+  likesArray: string[];
+};
+
 export type IFollowUser = {
   followerId: string;
   followingId: string;
 };
+
+export type INotification = {
+  type: 'like' | 'comment' | 'follow' | 'share' | 'newPost' | 'save';
+  targetId: string;
+  userId: string;
+  postId: string;
+}

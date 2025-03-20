@@ -6,7 +6,7 @@ import { useCreateComment } from "@/lib/react-query/queriesAndMutations"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "../ui/button"
 
-const CommentForm = ({ postId }: { postId: string }) => {
+const CommentForm = ({ postId, postCreatorId }: { postId: string, postCreatorId: string }) => {
     const { user } = useUserContext()
     const [comment, setComment] = useState("")
 
@@ -23,7 +23,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
             quote: comment
         }
 
-        const newComment = await createComment(commentData)
+        const newComment = await createComment({ comment: commentData, postCreatorId })
 
         if (isCommentingError || !newComment) {
             toast({
@@ -46,7 +46,7 @@ const CommentForm = ({ postId }: { postId: string }) => {
                 className="rounded-full"
             />
 
-            <form className="relative w-[48%]" onSubmit={handleCommentSubmit}>
+            <form className="relative w-full md:w-[66%] xl:w-[70%]" onSubmit={handleCommentSubmit}>
                 <Input
                     type="text"
                     placeholder="Write your comment..."

@@ -7,10 +7,9 @@ import {
   useLikePost,
   useSavePost,
 } from "@/lib/react-query/queriesAndMutations";
-import { useShareContext } from "@/context/SharePostContext";
 import Loader from "./Loader";
-import ShareOptionsModal from "./ShareOptionsModal";
-import { useCommentContext } from "@/context/CommentsContext";
+import ShareModal from "./ShareModal";
+import { useModalContext } from "@/context/ModalContext";
 
 type PostStatsProps = {
   post: Models.Document;
@@ -22,8 +21,7 @@ type PostStatsProps = {
 const PostStats = ({ post, userId, comments, showComments = true }: PostStatsProps) => {
   const likesList = post.likes.map((user: Models.Document) => user.$id);
 
-  const { isShareModalOpen, setShareModalOpen } = useShareContext();
-  const { setCommentModalOpen } = useCommentContext()
+  const { modalToOpen, setModalToOpen } = useModalContext();
 
   const [likes, setLikes] = useState(likesList);
   const [isSaved, setIsSaved] = useState(false);
@@ -57,7 +55,10 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
     }
 
     setLikes(newLikes);
-    likePost({ postId: post.$id, likesArray: newLikes });
+    likePost(hasLiked
+      ? { postId: post.$id, likesArray: newLikes }
+      : { postId: post.$id, likesArray: newLikes, targetId: post.creator.$id, userId }
+    );
   };
 
   const handleSavePost = (e: React.MouseEvent<HTMLOrSVGImageElement>) => {
@@ -70,22 +71,21 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
       return;
     }
 
-    savePost({ postId: post.$id, userId: userId });
+    savePost({ postId: post.$id, userId: userId, targetId: post.creator.$id });
     setIsSaved(true);
   };
 
   const handleSharePost = (e: React.MouseEvent<HTMLOrSVGImageElement>) => {
     e.stopPropagation();
 
-    setShareModalOpen(true);
+    setModalToOpen('SHARE');
   }
 
   return (
     <div className="flex justify-between items-center z-20">
-      {isShareModalOpen &&
-        <ShareOptionsModal
+      {modalToOpen === 'SHARE' &&
+        <ShareModal
           id={post.$id}
-          caption={post.caption}
         />}
       <div className="flex gap-3">
         <div className="flex-center gap-2">
@@ -123,7 +123,7 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
               alt="comment"
               width={20}
               height={20}
-              onClick={() => setCommentModalOpen(true)}
+              onClick={() => setModalToOpen('COMMENT')}
               className="cursor-pointer"
             />
             <p className="small-medium lg:base-medium">{comments || 0}</p>

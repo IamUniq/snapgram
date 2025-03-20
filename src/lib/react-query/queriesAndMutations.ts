@@ -1,6 +1,7 @@
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import {
   IFollowUser,
+  ILikePost,
   INewComment,
   INewPost,
   INewUser,
@@ -16,6 +17,7 @@ import {
 import {
   createUserAccount,
   getCurrentUser,
+  getNotifications,
   getUserById,
   getUsers,
   signInAccount,
@@ -97,11 +99,10 @@ export const useLikePost = () => {
   return useMutation({
     mutationFn: ({
       postId,
+      targetId,
+      userId,
       likesArray,
-    }: {
-      postId: string;
-      likesArray: string[];
-    }) => likePost(postId, likesArray),
+    }: ILikePost) => likePost({postId, targetId, userId, likesArray}),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id],
@@ -123,8 +124,8 @@ export const useSavePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ postId, userId }: { postId: string; userId: string }) =>
-      savePost(postId, userId),
+    mutationFn: ({ postId, userId, targetId }: { postId: string; userId: string, targetId: string }) =>
+      savePost({postId, userId, targetId}),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
@@ -270,7 +271,7 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (comment: INewComment) => createComment(comment),
+    mutationFn: ({ comment, postCreatorId }: { comment: INewComment;  postCreatorId: string}) => createComment(comment, postCreatorId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_COMMENTS, data?.post.$id],
@@ -376,3 +377,11 @@ export const useGetUserFollowings = (userId: string) => {
     enabled: !!userId,
   });
 };
+
+export const useGetNotifications = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_NOTIFICATIONS, userId],
+    queryFn: () => getNotifications(userId),
+    enabled: !!userId,
+  });
+}

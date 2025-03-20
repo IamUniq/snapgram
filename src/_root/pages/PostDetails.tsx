@@ -1,31 +1,21 @@
 import { multiFormatDateString as formatDate } from "@/lib/utils";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import { GridPostList, ImageView } from "@/components/shared";
-import CommentsModal from "@/components/shared/CommentsModal";
-import Loader from "@/components/shared/Loader";
-import PostStats from "@/components/shared/PostStats";
 import { Button } from "@/components/ui/button";
+import { GridPostList, ImageView, Loader, CommentsModal, DeleteModal, PostStats } from "@/components/shared";
 import { useUserContext } from "@/context/AuthContext";
-import { useDeletePost, useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
-import { useCommentContext } from "@/context/CommentsContext";
+import { useModalContext } from "@/context/ModalContext";
+import { useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
 
 const PostDetails = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { user } = useUserContext();
-  const { isCommentModalOpen } = useCommentContext()
+  const { modalToOpen, setModalToOpen } = useModalContext()
 
   const { data: post, isPending: isGettingPost } = useGetPostById(id || "")
 
   const { data: relatedPosts, isPending: isGettingRelatedPosts } = useGetRelatedPosts(post?.$id || "", post?.tags)
-
-  const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
-
-  const handleDeletePost = async () => {
-    await deletePost({ postId: post?.$id || "", imageId: post?.imageId })
-    navigate(-1)
-  }
 
   return (
     <div className="post_details-container">
@@ -44,12 +34,16 @@ const PostDetails = () => {
         </Button>
       </div>
 
-      {isCommentModalOpen && (
+      {modalToOpen === 'COMMENT' ? (
         <CommentsModal
           userId={user.id}
           postId={post?.$id || ""}
         />
-      )}
+      ) :
+        <DeleteModal
+          post={{ id: post?.$id || '', imageId: post?.imageId }}
+        />
+      }
 
       {isGettingPost || !post
         ? <Loader />
@@ -101,9 +95,8 @@ const PostDetails = () => {
                         <img src="/assets/icons/edit.svg" alt="edit" width={24} height={24} />
                       </Link>
                       <Button
-                        onClick={handleDeletePost}
+                        onClick={() => setModalToOpen('DELETE')}
                         variant="ghost"
-                        disabled={isDeletingPost}
                         className={`ghost_details-delete_btn ${user.id !== post.creator.$id && "hidden"}`}
                       >
                         <img src="/assets/icons/delete.svg" alt="delete" width={24} height={24} />

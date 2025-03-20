@@ -1,4 +1,4 @@
-import { INewUser, IUpdateUser } from "@/types";
+import { INewUser, INotification, IUpdateUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases } from "../config";
 import { deleteFile, getFilePreview, uploadFile } from "./posts";
@@ -181,6 +181,44 @@ export async function updateUser(user: IUpdateUser) {
     }
 
     return updatedUser;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function createNotification({type, targetId, userId, postId}: INotification) {
+  try {
+      const notification = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.notificationsCollectionId,
+      ID.unique(),
+      {
+        type,
+        targetId,
+        post: postId, 
+        user: userId,
+      }
+    )
+
+    if (!notification) throw Error
+    
+    return notification
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export async function getNotifications(userId: string) {
+  try {
+    const notifications = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.notificationsCollectionId,
+      [Query.equal("targetId", userId)]
+    );
+
+    if (!notifications) throw Error;
+
+    return notifications.documents;
   } catch (error) {
     console.log(error);
   }

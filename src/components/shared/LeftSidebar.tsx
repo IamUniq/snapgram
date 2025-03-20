@@ -65,16 +65,24 @@ const LeftSidebar = () => {
               >
                 <NavLink
                   to={link.route}
-                  className="flex gap-4 items-center p-4"
+                  className="relative flex gap-4 items-center p-4"
                 >
                   <img
                     src={link.imgURL}
                     alt={link.label}
+                    width={24}
+                    height={24}
                     className={cn("group-hover:invert-white", {
                       "invert-white": isActive,
                     })}
                   />
+
+                  {link.label === 'Notifications' && (
+                    <span className="bg-primary-500 rounded-full h-3 w-3 absolute right-44 top-[25%] animate-pulse" />
+                  )}
+
                   {link.label}
+
                 </NavLink>
               </li>
             );

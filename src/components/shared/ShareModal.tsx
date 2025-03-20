@@ -1,5 +1,6 @@
 import {
     AlertDialog,
+    AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
     AlertDialogHeader,
@@ -7,12 +8,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { shareOptions } from "@/constants";
-import { useShareContext } from "@/context/SharePostContext";
+import { useModalContext } from "@/context/ModalContext";
 import { X } from "lucide-react";
 import { useState } from 'react';
 
-const ShareOptionsModal = ({ id, caption }: { id: string; caption: string }) => {
-    const { isShareModalOpen, setShareModalOpen } = useShareContext();
+const ShareModal = ({ id }: { id: string }) => {
+    const { modalToOpen, setModalToOpen } = useModalContext()
+
+    const onOpenChange = () => {
+        modalToOpen === 'SHARE'
+            ? setModalToOpen(null)
+            : setModalToOpen('SHARE')
+    }
 
     const [searchValue, setSearchValue] = useState("")
 
@@ -22,8 +29,8 @@ const ShareOptionsModal = ({ id, caption }: { id: string; caption: string }) => 
 
     return (
         <AlertDialog
-            open={isShareModalOpen}
-            onOpenChange={(newValue) => setShareModalOpen(newValue)}
+            open={modalToOpen === 'SHARE'}
+            onOpenChange={onOpenChange}
         >
             <AlertDialogContent aria-label="Share Options" className="overflow-hidden">
                 <AlertDialogHeader>
@@ -45,11 +52,9 @@ const ShareOptionsModal = ({ id, caption }: { id: string; caption: string }) => 
                         />
                     </div>
 
-                    <X
-                        size={25}
-                        className="absolute -top-2 right-0 text-black cursor-pointer bg-primary-500 p-1 rounded-b-md hover:bg-primary-600 transition-colors duration-300 ease-in-out"
-                        onClick={() => setShareModalOpen(false)}
-                    />
+                    <AlertDialogCancel className="absolute -top-2 right-0 text-black cursor-pointer bg-primary-500 p-1 rounded-b-md hover:bg-primary-600 transition-colors duration-300 ease-in-out">
+                        <X size={25} />
+                    </AlertDialogCancel>
                 </AlertDialogHeader>
 
                 <div className="flex gap-2" >
@@ -76,4 +81,4 @@ const ShareOptionsModal = ({ id, caption }: { id: string; caption: string }) => 
     )
 }
 
-export default ShareOptionsModal;
+export default ShareModal;

@@ -24,13 +24,13 @@ import { useUserContext } from "@/context/AuthContext"
 import { useToast } from "@/hooks/use-toast";
 
 const EditProfileForm = () => {
-
     const { user } = useUserContext()
     const { toast } = useToast();
     const navigate = useNavigate();
 
     const form = useForm<z.infer<typeof ProfileValidation>>({
         resolver: zodResolver(ProfileValidation),
+        mode: "onChange",
         defaultValues: {
             name: user.name,
             username: user.username,
@@ -146,7 +146,11 @@ const EditProfileForm = () => {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className="shad-button_primary">
+                <Button
+                    type="submit"
+                    disabled={!form.formState.isDirty}
+                    className="shad-button_primary"
+                >
                     {isUpdatingProfile ? (
                         <Loader />
                     ) : (

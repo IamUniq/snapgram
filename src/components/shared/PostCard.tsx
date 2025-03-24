@@ -1,11 +1,11 @@
 import { useUserContext } from "@/context/AuthContext";
+import { useGetComments } from "@/lib/react-query/queriesAndMutations";
 import { multiFormatDateString as formatDate } from "@/lib/utils";
 import { Models } from "appwrite";
 import { Link } from "react-router-dom";
-import PostStats from "./PostStats";
-import { useGetComments } from "@/lib/react-query/queriesAndMutations";
-import ImageView from "./ImageView";
 import CommentsModal from "./CommentsModal";
+import ImageView from "./ImageView";
+import PostStats from "./PostStats";
 import { useModalContext } from "@/context/ModalContext";
 
 type PostCardProps = {
@@ -13,8 +13,8 @@ type PostCardProps = {
 };
 const PostCard = ({ post }: PostCardProps) => {
   const { user } = useUserContext();
-  const { modalToOpen } = useModalContext()
   const { data: comments } = useGetComments(post.$id)
+  const { modalToOpen } = useModalContext()
 
   if (!post.creator) return;
 
@@ -56,11 +56,8 @@ const PostCard = ({ post }: PostCardProps) => {
         </Link>
       </div>
 
-      {modalToOpen === 'COMMENT' && (
-        <CommentsModal
-          userId={user.id}
-          postId={post.$id}
-        />
+      {modalToOpen?.type === 'COMMENT' && modalToOpen.postId === post.$id && (
+        <CommentsModal userId={user.id} comments={comments} />
       )}
 
       <div className="mt-4">

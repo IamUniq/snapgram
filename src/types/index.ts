@@ -82,5 +82,5 @@ export type INotification = {
   type: 'like' | 'comment' | 'follow' | 'share' | 'newPost' | 'save';
   targetId: string;
   userId: string;
-  postId: string;
+  postId?: string;
 }

@@ -1,14 +1,20 @@
 import { createContext, useContext, useState } from "react";
 
-type ModalProps = 'COMMENT' | 'DELETE' | 'SHARE' | null
+type ModalProps = 'COMMENT' | 'DELETE' | 'SHARE'
 
 type IContextType = {
-    modalToOpen: ModalProps;
-    setModalToOpen: React.Dispatch<React.SetStateAction<ModalProps>>
+    modalToOpen: {
+        type: ModalProps;
+        postId?: string;
+    } | null;
+    setModalToOpen: React.Dispatch<React.SetStateAction<{
+        type: ModalProps;
+        postId?: string;
+    } | null>>
 };
 
 const INITIAL_STATE: IContextType = {
-    modalToOpen: null,
+    modalToOpen: { type: 'COMMENT' },
     setModalToOpen: () => { },
 };
 
@@ -16,7 +22,7 @@ const INITIAL_STATE: IContextType = {
 const ModalContext = createContext<IContextType>(INITIAL_STATE);
 
 export function ModalProvider({ children }: { children: React.ReactNode }) {
-    const [modalToOpen, setModalToOpen] = useState<ModalProps>(null);
+    const [modalToOpen, setModalToOpen] = useState<{ type: ModalProps; postId?: string } | null>(null);
 
     return (
         <ModalContext.Provider value={{ modalToOpen, setModalToOpen }}>

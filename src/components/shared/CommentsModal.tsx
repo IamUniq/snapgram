@@ -7,34 +7,48 @@ import {
 } from "@/components/ui/sheet"
 import { useModalContext } from "@/context/ModalContext"
 
-import { useGetComments } from "@/lib/react-query/queriesAndMutations"
+import { cn } from "@/lib/utils"
+import { Models } from "appwrite"
+import { useEffect, useState } from "react"
 import CommentForm from "../forms/CommentForm"
 import CommentsPanel from "./CommentsPanel"
-import { cn } from "@/lib/utils"
-import { useEffect, useState } from "react"
 
-const CommentsModal = ({ userId, postId }: { userId: string; postId: string }) => {
+type CommentsModalProps = {
+    userId: string;
+    comments: Models.DocumentList<Models.Document> | undefined;
+}
+const CommentsModal = ({ userId, comments }: CommentsModalProps) => {
     const [postCreatorId, setPostCreatorId] = useState("")
     const { modalToOpen, setModalToOpen } = useModalContext()
 
-    const onOpenChange = () => {
-        modalToOpen === 'COMMENT'
-            ? setModalToOpen(null)
-            : setModalToOpen('COMMENT')
-    }
-
-    const { data: comments } = useGetComments(postId)
+    const postId = modalToOpen?.postId
 
     useEffect(() => {
-        if (comments) {
-            setPostCreatorId(comments.documents[0].post.creator.$id)
+        if (comments && comments.documents.length > 0) {
+            setPostCreatorId(comments.documents[0]?.post?.creator?.$id || "");
+        } else {
+            setPostCreatorId("");
         }
-    }, [comments])
+    }, [comments, postId]);
+
+    const onOpenChange = () => {
+        if (!postId) {
+            setModalToOpen(null)
+        }
+
+        modalToOpen?.type === 'COMMENT'
+            ? setModalToOpen(null)
+            : setModalToOpen({ type: 'COMMENT', postId })
+    }
+
     return (
-        <Sheet open={modalToOpen === 'COMMENT'} onOpenChange={onOpenChange}>
+        <Sheet
+            open={modalToOpen?.type === 'COMMENT'}
+            onOpenChange={onOpenChange}
+        >
             <SheetContent side="bottom" className="w-full h-[70vh] overflow-y-scroll custom-scrollbar md:w-[70vw] bg-dark-2 rounded-t-xl mx-auto border-dark-4">
                 <SheetHeader>
-                    <SheetTitle>Comments</SheetTitle>
+                    <SheetTitle aria-label={`Comments for ${postId}`}>Comments</SheetTitle>
                     <SheetDescription className="hidden">Comments for {postId}</SheetDescription>
                 </SheetHeader>
                 {!comments || comments.documents.length === 0
@@ -44,7 +58,7 @@ const CommentsModal = ({ userId, postId }: { userId: string; postId: string }) =
                             {comments?.documents.map((comment, index) => (
                                 <>
                                     <CommentsPanel
-                                        key={index + comment.commenter.name}
+                                        key={`${comment.$id}-${index}`}
                                         userId={userId}
                                         comment={comment}
                                     />
@@ -58,7 +72,7 @@ const CommentsModal = ({ userId, postId }: { userId: string; postId: string }) =
                     )}
 
                 <div className="w-[90%] fixed bottom-3">
-                    <CommentForm postId={postId} postCreatorId={postCreatorId} />
+                    <CommentForm postId={postId || ""} postCreatorId={postCreatorId} />
                 </div>
             </SheetContent>
         </Sheet>

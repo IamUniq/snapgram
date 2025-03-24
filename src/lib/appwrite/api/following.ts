@@ -1,6 +1,7 @@
 import { IFollowUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { appwriteConfig, databases } from "../config";
+import { createNotification } from "./users";
 
 export async function isFollowingUser(data: IFollowUser) {
   try {
@@ -40,6 +41,12 @@ export async function followUser(data: IFollowUser) {
     );
 
     if (!followingUser) throw Error;
+
+    await createNotification({
+      type: 'follow',
+      targetId: data.followingId,
+      userId: data.followerId
+    })
 
     return {
       success: true,

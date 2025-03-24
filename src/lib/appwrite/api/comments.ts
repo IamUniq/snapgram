@@ -18,12 +18,14 @@ export async function createComment(comment: INewComment, postCreatorId: string)
 
     if (!newComment) throw Error;
 
-    await createNotification({
-      type: "comment",
-      targetId: postCreatorId,
-      userId: comment.commenterId,
-      postId: comment.postId,
-    })
+    if (comment.commenterId !== postCreatorId) {
+      await createNotification({
+        type: "comment",
+        targetId: postCreatorId,
+        userId: comment.commenterId,
+        postId: comment.postId,
+      })
+    }
 
     return newComment;
   } catch (error) {

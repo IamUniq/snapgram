@@ -13,38 +13,36 @@ import { useDeletePost } from "@/lib/react-query/queriesAndMutations"
 import { useNavigate } from "react-router-dom"
 import Loader from "./Loader"
 
-type DeleteModalProps = {
-    post: {
-        id: string;
-        imageId: string;
-    }
-}
-
-const DeleteModal = ({ post }: DeleteModalProps) => {
+const DeleteModal = ({ imageId }: { imageId: string }) => {
     const navigate = useNavigate()
     const { modalToOpen, setModalToOpen } = useModalContext()
 
+    const postId = modalToOpen?.postId
+
     const onOpenChange = () => {
-        modalToOpen === 'DELETE'
+        if (!postId) {
+            setModalToOpen(null)
+        }
+
+        modalToOpen?.type === 'DELETE'
             ? setModalToOpen(null)
-            : setModalToOpen('DELETE')
+            : setModalToOpen({ type: 'DELETE', postId })
     }
 
     const { mutateAsync: deletePost, isPending: isDeletingPost } = useDeletePost()
 
     const handleDeletePost = async () => {
-        await deletePost({ postId: post.id, imageId: post.imageId })
+        await deletePost({ postId: postId!, imageId })
         navigate(-1)
     }
 
     return (
-        <AlertDialog open={modalToOpen === 'DELETE'} onOpenChange={onOpenChange}>
+        <AlertDialog open={modalToOpen?.type === 'DELETE'} onOpenChange={onOpenChange}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                     <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete your
-                        account and remove your data from our servers.
+                        This will permanently delete your post. This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -52,7 +50,7 @@ const DeleteModal = ({ post }: DeleteModalProps) => {
                         ? <Loader /> : (
                             <>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeletePost}>Continue</AlertDialogAction>
+                                <AlertDialogAction onClick={handleDeletePost}>Delete</AlertDialogAction>
                             </>
                         )}
                 </AlertDialogFooter>

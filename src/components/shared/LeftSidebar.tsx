@@ -78,7 +78,7 @@ const LeftSidebar = () => {
                   />
 
                   {link.label === 'Notifications' && (
-                    <span className="bg-primary-500 rounded-full h-3 w-3 absolute right-44 top-[25%] animate-pulse" />
+                    <span className="bg-primary-500 rounded-full h-3 w-3 absolute right-44 top-[25%] group-hover:invert-white" />
                   )}
 
                   {link.label}

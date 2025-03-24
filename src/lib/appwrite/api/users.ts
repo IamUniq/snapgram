@@ -213,12 +213,38 @@ export async function getNotifications(userId: string) {
     const notifications = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.notificationsCollectionId,
-      [Query.equal("targetId", userId)]
+      [
+        Query.equal("targetId", userId),
+        Query.orderDesc('$createdAt')
+      ]
     );
 
     if (!notifications) throw Error;
 
     return notifications.documents;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateNotifications(notificationIds: string[]) {
+  try {
+    await Promise.all(
+      notificationIds.map(async (notificationId) => {
+        const updatedNotification = await databases.updateDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.notificationsCollectionId,
+          notificationId,
+          {
+            read: true
+          }
+        );
+
+        if(!updatedNotification) throw Error
+
+        return {success: true}
+      })
+    );
   } catch (error) {
     console.log(error);
   }

@@ -22,6 +22,7 @@ import {
   getUsers,
   signInAccount,
   signOutAccount,
+  updateNotifications,
   updateUser,
 } from "../appwrite/api/users";
 
@@ -260,10 +261,14 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: (user: IUpdateUser) => updateUser(user),
-    onSuccess: () =>
+    onSuccess: (data) =>{
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
       }),
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
+      })
+    }
   });
 };
 
@@ -383,5 +388,11 @@ export const useGetNotifications = (userId: string) => {
     queryKey: [QUERY_KEYS.GET_NOTIFICATIONS, userId],
     queryFn: () => getNotifications(userId),
     enabled: !!userId,
+  });
+}
+
+export const useUpdateNotifications = (notificationIds: string[]) => {
+  return useMutation({
+    mutationFn: () => updateNotifications(notificationIds),
   });
 }

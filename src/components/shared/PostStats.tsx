@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { Models } from "appwrite";
-import { checkIsLiked, cn } from "@/lib/utils";
+import { useModalContext } from "@/context/ModalContext";
 import {
   useDeleteSavedPost,
   useGetCurrentUser,
   useLikePost,
   useSavePost,
 } from "@/lib/react-query/queriesAndMutations";
+import { checkIsLiked, cn } from "@/lib/utils";
+import { Models } from "appwrite";
+import { useEffect, useState } from "react";
 import Loader from "./Loader";
 import ShareModal from "./ShareModal";
-import { useModalContext } from "@/context/ModalContext";
 
 type PostStatsProps = {
   post: Models.Document;
@@ -78,15 +78,14 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
   const handleSharePost = (e: React.MouseEvent<HTMLOrSVGImageElement>) => {
     e.stopPropagation();
 
-    setModalToOpen('SHARE');
+    setModalToOpen({ type: 'SHARE', postId: post.$id });
   }
 
   return (
     <div className="flex justify-between items-center z-20">
-      {modalToOpen === 'SHARE' &&
-        <ShareModal
-          id={post.$id}
-        />}
+      {modalToOpen?.postId === post.$id && modalToOpen?.type === 'SHARE' &&
+        <ShareModal userId={userId} />
+      }
       <div className="flex gap-3">
         <div className="flex-center gap-2">
           <img
@@ -123,7 +122,7 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
               alt="comment"
               width={20}
               height={20}
-              onClick={() => setModalToOpen('COMMENT')}
+              onClick={() => setModalToOpen({ type: 'COMMENT', postId: post.$id })}
               className="cursor-pointer"
             />
             <p className="small-medium lg:base-medium">{comments || 0}</p>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { GridPostList, ImageView, Loader, CommentsModal, DeleteModal, PostStats } from "@/components/shared";
 import { useUserContext } from "@/context/AuthContext";
 import { useModalContext } from "@/context/ModalContext";
-import { useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
+import { useGetComments, useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
 
 const PostDetails = () => {
   const navigate = useNavigate()
@@ -14,6 +14,7 @@ const PostDetails = () => {
   const { modalToOpen, setModalToOpen } = useModalContext()
 
   const { data: post, isPending: isGettingPost } = useGetPostById(id || "")
+  const { data: comments } = useGetComments(post?.$id || "")
 
   const { data: relatedPosts, isPending: isGettingRelatedPosts } = useGetRelatedPosts(post?.$id || "", post?.tags)
 
@@ -34,16 +35,14 @@ const PostDetails = () => {
         </Button>
       </div>
 
-      {modalToOpen === 'COMMENT' ? (
-        <CommentsModal
-          userId={user.id}
-          postId={post?.$id || ""}
-        />
-      ) :
-        <DeleteModal
-          post={{ id: post?.$id || '', imageId: post?.imageId }}
-        />
-      }
+      {modalToOpen?.postId === post?.$id && (
+        modalToOpen?.type === 'COMMENT' ? (
+          <CommentsModal userId={user.id} comments={comments} />
+        ) : modalToOpen?.type === 'DELETE' ? (
+          <DeleteModal imageId={post?.imageId} />
+        ) : null
+      )}
+
 
       {isGettingPost || !post
         ? <Loader />
@@ -95,7 +94,7 @@ const PostDetails = () => {
                         <img src="/assets/icons/edit.svg" alt="edit" width={24} height={24} />
                       </Link>
                       <Button
-                        onClick={() => setModalToOpen('DELETE')}
+                        onClick={() => setModalToOpen({ type: 'DELETE', postId: post.$id })}
                         variant="ghost"
                         className={`ghost_details-delete_btn ${user.id !== post.creator.$id && "hidden"}`}
                       >
@@ -117,7 +116,7 @@ const PostDetails = () => {
                 </div>
 
                 <div className="w-full xl:h-[2%]">
-                  <PostStats post={post} userId={user.id} comments={post.comments.length} />
+                  <PostStats post={post} userId={user.id} comments={comments?.total} />
                 </div>
               </div>
             </div>

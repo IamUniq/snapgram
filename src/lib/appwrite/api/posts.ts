@@ -2,6 +2,7 @@ import { ILikePost, INewPost, IUpdatePost } from "@/types";
 import { ID, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
 import { createNotification } from "./users";
+import { getUserFollowers } from "./following";
 
 export async function createPost(post: INewPost) {
   const fileUrls: string[] = [];
@@ -55,6 +56,19 @@ export async function createPost(post: INewPost) {
         })
       );
       throw Error;
+    }
+
+    const userFollowers = await getUserFollowers(post.userId);
+
+    if (!userFollowers) return newPost;
+
+    for (const follower of userFollowers?.documents) {
+      await createNotification({
+        type: "newPost",
+        targetId: follower.$id,
+        userId: post.userId,
+        postId: newPost.$id,
+      });
     }
 
     return newPost;
@@ -131,7 +145,7 @@ export async function likePost({postId, targetId, userId, likesArray}: ILikePost
 
     if (!updatedPost) throw Error;
 
-    if (targetId && userId) {
+    if (targetId && userId && (targetId !== userId)) {
       await createNotification({
         type: 'like',
         targetId,

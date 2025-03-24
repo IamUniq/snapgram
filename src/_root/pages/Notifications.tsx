@@ -1,16 +1,26 @@
 import { Loader, NotificationCard } from "@/components/shared"
 import { useUserContext } from "@/context/AuthContext"
-import { useGetNotifications } from "@/lib/react-query/queriesAndMutations"
+import { useGetNotifications, useUpdateNotifications } from "@/lib/react-query/queriesAndMutations"
+import { useEffect } from "react"
 
 const Notifications = () => {
     const { user } = useUserContext()
 
     const { data: notifications, isPending: isGettingNotifications } = useGetNotifications(user.id)
 
-    // console.log(notifications)
+    const unReadNotifications = notifications?.filter((notification) => notification.read === false).map((notification) => notification.$id)
+
+    const { mutate: markAllAsRead } = useUpdateNotifications(unReadNotifications || [])
+
+    useEffect(() => {
+        if (unReadNotifications && unReadNotifications.length > 0) {
+            markAllAsRead()
+        }
+    }, [])
+
     return (
         <div className="notifications-container">
-            <div className="flex-between w-full max-w-5xl">
+            <div className="flex-between w-full max-w-2xl">
                 <div className="flex gap-2 w-full max-w-5xl">
                     <img
                         src="/assets/icons/notification.svg"
@@ -35,18 +45,20 @@ const Notifications = () => {
 
             {!notifications || isGettingNotifications ? (
                 <Loader />
-            ) : (
-                <ul className="w-full flex flex-col max-w-2xl gap-7 mt-8">
-                    {notifications?.map((notification, index) => (
-                        <NotificationCard
-                            key={notification.$id}
-                            index={index}
-                            notification={notification}
-                        />
-                    ))}
-                    {/* <p className="text-light-4">No available notifications</p> */}
-                </ul>
-            )}
+            ) : notifications.length < 1 ? (
+                <p className="body-bold text-light-3 text-center">Nothing has happened yet</p>
+            )
+                : (
+                    <ul className="w-full flex flex-col max-w-2xl gap-7 mt-8">
+                        {notifications?.map((notification) => (
+                            <NotificationCard
+                                key={notification.$id}
+                                notification={notification}
+                                userId={user.id}
+                            />
+                        ))}
+                    </ul>
+                )}
 
         </div>
     )

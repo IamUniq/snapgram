@@ -5,7 +5,7 @@ import { UndoDot } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 
-const CommentsPanel = (
+const CommentLine = (
     { userId, comment }:
         { userId: string, comment: Models.Document }
 ) => {
@@ -98,4 +98,4 @@ const CommentsPanel = (
     )
 }
 
-export default CommentsPanel
+export default CommentLine

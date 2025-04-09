@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Models } from "appwrite"
 import { useEffect, useState } from "react"
 import CommentForm from "../forms/CommentForm"
-import CommentsPanel from "./CommentsPanel"
+import CommentLine from "./CommentLine"
 
 type CommentsModalProps = {
     userId: string;
@@ -57,7 +57,7 @@ const CommentsModal = ({ userId, comments }: CommentsModalProps) => {
                         <div className="mt-4 flex flex-col gap-3">
                             {comments?.documents.map((comment, index) => (
                                 <>
-                                    <CommentsPanel
+                                    <CommentLine
                                         key={`${comment.$id}-${index}`}
                                         userId={userId}
                                         comment={comment}

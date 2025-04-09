@@ -18,8 +18,8 @@ import {
   Settings,
   Notifications
 } from "./_root/pages";
-import { Toaster } from "./components/ui/toaster";
 import EditProfile from "./_root/pages/EditProfile";
+import { Toaster } from "./components/ui/sonner";
 
 const App = () => {
   return (

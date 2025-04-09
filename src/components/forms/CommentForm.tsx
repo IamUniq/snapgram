@@ -1,16 +1,14 @@
 import { useUserContext } from "@/context/AuthContext"
-import { Input } from "../ui/input"
+import { useCreateComment } from "@/lib/react-query/queriesAndMutations"
 import { Send } from "lucide-react"
 import React, { useState } from "react"
-import { useCreateComment } from "@/lib/react-query/queriesAndMutations"
-import { useToast } from "@/hooks/use-toast"
 import { Button } from "../ui/button"
+import { Input } from "../ui/input"
+import { toast } from "sonner"
 
 const CommentForm = ({ postId, postCreatorId }: { postId: string, postCreatorId: string }) => {
     const { user } = useUserContext()
     const [comment, setComment] = useState("")
-
-    const { toast } = useToast()
 
     const { mutateAsync: createComment, isPending: isCreatingComment, isError: isCommentingError } = useCreateComment()
 
@@ -26,9 +24,7 @@ const CommentForm = ({ postId, postCreatorId }: { postId: string, postCreatorId:
         const newComment = await createComment({ comment: commentData, postCreatorId })
 
         if (isCommentingError || !newComment) {
-            toast({
-                title: "Could not create comment",
-            })
+            toast.error("Could not create comment")
         }
 
         if (newComment) {
@@ -41,9 +37,7 @@ const CommentForm = ({ postId, postCreatorId }: { postId: string, postCreatorId:
             <img
                 src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
                 alt="profile-image"
-                width={42}
-                height={42}
-                className="rounded-full"
+                className="rounded-full w-12 h-12"
             />
 
             <form className="relative w-full md:w-[66%] xl:w-[70%]" onSubmit={handleCommentSubmit}>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,9 +19,9 @@ import { Input } from "@/components/ui/input";
 import { useUserContext } from "@/context/AuthContext";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { SigninValidation } from "@/lib/validation";
+import { toast } from "sonner";
 
 const SigninForm = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
@@ -38,13 +37,17 @@ const SigninForm = () => {
   });
 
   async function onSubmit(values: z.infer<typeof SigninValidation>) {
-    const session = await signInAccount({
+    const signIn = await signInAccount({
       email: values.email,
       password: values.password,
     });
 
-    if (!session) {
-      return toast({ title: "Sign in failed. Please try again" });
+    if (signIn.error === 401) {
+      toast.error("Invalid Credentials", {
+        description: "Check email and password"
+      });
+
+      return;
     }
 
     const isLoggedIn = await checkAuthUser();
@@ -52,7 +55,7 @@ const SigninForm = () => {
       form.reset();
       navigate("/");
     } else {
-      toast({ title: "Sign up failed. Please try again." });
+      toast.error("Sign in failed. Please try again.")
       return;
     }
   }

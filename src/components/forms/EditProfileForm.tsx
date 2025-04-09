@@ -18,14 +18,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useUserContext } from "@/context/AuthContext";
+import { useModalContext } from "@/context/ModalContext";
 import { useUpdateUser } from "@/lib/react-query/queriesAndMutations";
 import { ProfileValidation } from "@/lib/validation";
-import { useUserContext } from "@/context/AuthContext"
-import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import PasswordModal from "../shared/PasswordModal";
+import { IUpdateUser } from "@/types";
+import { toast } from "sonner";
 
 const EditProfileForm = () => {
     const { user } = useUserContext()
-    const { toast } = useToast();
+    const [dataToUpdate, setDataToUpdate] = useState<IUpdateUser | null>(null)
+    const { modalToOpen, setModalToOpen } = useModalContext()
     const navigate = useNavigate();
 
     const form = useForm<z.infer<typeof ProfileValidation>>({
@@ -34,6 +39,7 @@ const EditProfileForm = () => {
         defaultValues: {
             name: user.name,
             username: user.username,
+            password: "",
             email: user.email,
             bio: user.bio || "",
             file: [],
@@ -44,26 +50,38 @@ const EditProfileForm = () => {
 
     async function onSubmit(values: z.infer<typeof ProfileValidation>) {
         const userInfo = {
-            ...values,
+            username: values.username,
+            bio: values.bio,
             file: values.file!,
             userId: user.id,
             imageId: user.imageId,
-            imageUrl: user.imageUrl
-        }
-        const updatedUser = await updateProfile(userInfo)
-
-        if (!updatedUser) {
-            toast({
-                variant: "destructive",
-                title: "Error updating profile. Please try again"
-            })
+            imageUrl: user.imageUrl,
+            ...(values.email !== user.email && { email: values.email }),
+            ...(values.name !== user.name && { name: values.name }),
+            ...(values.password !== '' && { newPassword: values.password }),
         }
 
-        toast({
-            title: "Updated Successful"
-        })
-        navigate(`/profile/${user.id}`)
+        if (userInfo.email || userInfo.newPassword) {
+            if (userInfo.newPassword && values.password!.length < 8) {
+                toast.error("Password must be at least 8 characters long")
 
+                return;
+            }
+
+            setDataToUpdate(userInfo)
+            setModalToOpen({ type: 'PASSWORD' })
+
+            return;
+        } else {
+            const updatedUser = await updateProfile(userInfo)
+
+            if (!updatedUser.success) {
+                toast.error(updatedUser.error)
+            }
+
+            toast.success("Update Successful")
+            navigate(`/profile/${user.id}`)
+        }
     }
 
     return (
@@ -72,6 +90,9 @@ const EditProfileForm = () => {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="flex flex-col gap-5 w-full py-7"
             >
+                {modalToOpen?.type === 'PASSWORD' &&
+                    <PasswordModal data={dataToUpdate!} />
+                }
                 <FormField
                     control={form.control}
                     name="file"
@@ -87,6 +108,8 @@ const EditProfileForm = () => {
                         </FormItem>
                     )}
                 />
+
+                <h3 className="text-xl font-semibold mb-2">Account Information</h3>
                 <FormField
                     control={form.control}
                     name="name"
@@ -103,12 +126,12 @@ const EditProfileForm = () => {
                 />
                 <FormField
                     control={form.control}
-                    name="username"
+                    name="email"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Username</FormLabel>
+                            <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input type="text" className="shad-input" {...field} />
+                                <Input type="email" className="shad-input" {...field} />
                             </FormControl>
 
                             <FormMessage />
@@ -117,12 +140,28 @@ const EditProfileForm = () => {
                 />
                 <FormField
                     control={form.control}
-                    name="email"
+                    name="password"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Email</FormLabel>
+                            <FormLabel>Password</FormLabel>
                             <FormControl>
-                                <Input type="email" disabled className="shad-input" {...field} />
+                                <Input type="password" className="shad-input" {...field} />
+                            </FormControl>
+
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <h3 className="text-xl font-semibold mt-7 mb-2">Profile Information</h3>
+                <FormField
+                    control={form.control}
+                    name="username"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                                <Input type="text" className="shad-input" {...field} />
                             </FormControl>
 
                             <FormMessage />

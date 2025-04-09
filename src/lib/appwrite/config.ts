@@ -9,6 +9,7 @@ export const appwriteConfig = {
   postsCollectionId: import.meta.env.VITE_APPWRITE_POSTS_COLLECTION_ID!,
   savesCollectionId: import.meta.env.VITE_APPWRITE_SAVES_COLLECTION_ID!,
   commentsCollectionId: import.meta.env.VITE_APPWRITE_COMMENTS_COLLECTION_ID!,
+  repliesCollectionId: import.meta.env.VITE_APPWRITE_REPLIES_COLLECTION_ID!,
   followsCollectionId: import.meta.env.VITE_APPWRITE_FOLLOWS_COLLECTION_ID!,
   notificationsCollectionId: import.meta.env.VITE_APPWRITE_NOTIFICATIONS_COLLECTION_ID!,
 };

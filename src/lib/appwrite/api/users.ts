@@ -1,7 +1,7 @@
-import { INewUser, INotification, IUpdateUser } from "@/types";
+import { INewUser, INotification, IUpdateAccount, IUpdateUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases } from "../config";
-import { deleteFile, getFilePreview, uploadFile } from "./posts";
+import { deleteFile, getFileView, uploadFile } from "./posts";
 
 export async function createUserAccount(user: INewUser) {
   try {
@@ -28,6 +28,37 @@ export async function createUserAccount(user: INewUser) {
   } catch (error) {
     console.error(error);
     return error;
+  }
+}
+
+export async function updateUserAccount(user: IUpdateAccount) {
+  const {email, password, newPassword, name} = user
+  try {
+    if (email && password) {
+      const updateEmail = await account.updateEmail(email, password);
+      if (!updateEmail) throw Error;
+    }
+
+    if (name) {
+      const updateName = await account.updateName(name);
+      if (!updateName) throw Error;
+    }
+    
+    if (newPassword && password) {
+      const updatePassword = await account.updatePassword(newPassword, password)
+      if (!updatePassword) throw Error;
+    }
+
+    return {success: true};
+  } catch (error: any) {
+    return {
+      success: false,
+      error: `${error.code === 409
+        ? "Email already exists. Please use another" 
+        : error.code === 401 
+        ? "Password Incorrect. Please try again"
+        : error.message} `
+    };
   }
 }
 
@@ -59,9 +90,9 @@ export async function signInAccount(user: { email: string; password: string }) {
       user.password
     );
 
-    return session;
-  } catch (error) {
-    console.error("Error signing user in", error);
+    return {session};
+  } catch (error: any) {
+    return {error: error.code}
   }
 }
 
@@ -138,6 +169,7 @@ export async function getUserById(userId: string) {
 
 export async function updateUser(user: IUpdateUser) {
   const hasFileToUpdate = user.file.length > 0;
+  const accountToBeUpdated = !!user.email || !!user.name || user.newPassword !== ''
   try {
     let image = {
       imageUrl: user.imageUrl,
@@ -145,22 +177,27 @@ export async function updateUser(user: IUpdateUser) {
     };
 
     if (hasFileToUpdate) {
-      // upload image to storage
       const uploadedFile = await uploadFile(user.file[0]);
 
-      if (!uploadedFile) throw Error;
-
-      // Get file url
-      const fileUrl = getFilePreview(uploadedFile.$id);
-
-      if (!fileUrl) {
-        deleteFile(uploadedFile.$id);
-        throw Error;
-      }
-
+      if (!uploadedFile.data) throw Error;
+      
       if (user.imageId !== null) deleteFile(user.imageId);
+      
+      const fileUrl = getFileView(uploadedFile.data)
+      if (!fileUrl.data) throw Error;
 
-      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+      image = { ...image, imageUrl: fileUrl.data, imageId: uploadedFile.data };
+    }
+
+    if (accountToBeUpdated) {
+      const updateAccount = await updateUserAccount({
+        email: user.email,
+        password: user.password,
+        name: user.name,
+        newPassword: user.newPassword
+      })
+      
+      if(!updateAccount.success) return {success: false , error: updateAccount.error}
     }
 
     const updatedUser = await databases.updateDocument(
@@ -169,6 +206,7 @@ export async function updateUser(user: IUpdateUser) {
       user.userId,
       {
         name: user.name,
+        email: user.email,
         username: user.username,
         bio: user.bio,
         ...image,
@@ -180,9 +218,9 @@ export async function updateUser(user: IUpdateUser) {
       throw Error;
     }
 
-    return updatedUser;
-  } catch (error) {
-    console.log(error);
+    return { success: true, data: updatedUser};
+  } catch (error: any) {
+    return { success: false, error: error.message};
   }
 }
 

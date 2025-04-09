@@ -19,7 +19,7 @@ const UserContent = ({ data, loggedInUser, className }: { data: any[], loggedInU
                     />
 
                     <Link to={`/profile/${user.$id}`}>{user.name}</Link>
-                    <p className="text-xs font-medium text-light-4">Followed By JsMastery</p>
+                    {/* <p className="text-xs font-medium text-light-4">Followed By JsMastery</p> */}
 
                     {loggedInUser !== user.$id && (
                         <div className="mt-4 z-20">

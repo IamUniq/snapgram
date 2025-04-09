@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useUserContext } from "@/context/AuthContext";
-import { useToast } from "@/hooks/use-toast";
 import { useCreatePost, useUpdatePost } from "@/lib/react-query/queriesAndMutations";
 import { PostValidation } from "@/lib/validation";
 import { Models } from "appwrite";
@@ -21,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import FileUploader from "../shared/FileUploader";
 import Loader from "../shared/Loader";
 import { Textarea } from "../ui/textarea";
+import { toast } from "sonner";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -33,7 +33,6 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const { mutateAsync: updatePost, isPending: isUpdatingPost } =
     useUpdatePost();
   const { user } = useUserContext();
-  const { toast } = useToast();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof PostValidation>>({
@@ -54,9 +53,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
       });
 
       if (!newPost) {
-        toast({
-          title: "Please try again",
-        });
+        toast.error("Error. Please try again");
       }
 
       navigate("/");
@@ -71,9 +68,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
       })
 
       if (!updatedPost) {
-        toast({
-          title: "Please try again",
-        });
+        toast.error("Error. Please try again");
       }
 
       return navigate(`/posts/${post.$id}`);

@@ -1,6 +1,5 @@
 "use client";
 
-import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -23,9 +22,9 @@ import {
   useSignInAccount,
 } from "@/lib/react-query/queriesAndMutations";
 import { SignupValidation } from "@/lib/validation";
+import { toast } from "sonner";
 
 const SigninForm = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
 
@@ -49,9 +48,7 @@ const SigninForm = () => {
     const newUser = await createUserAccount(values);
 
     if (!newUser) {
-      toast({
-        title: "Sign up failed. Please try again",
-      });
+      toast.error("Sign up failed. Please try again");
       return;
     }
 
@@ -61,7 +58,7 @@ const SigninForm = () => {
     });
 
     if (!session) {
-      return toast({ title: "Sign in failed. Please try again" });
+      return toast.error("Sign in failed. Please try again");
     }
 
     const isLoggedIn = await checkAuthUser();
@@ -70,7 +67,7 @@ const SigninForm = () => {
       form.reset();
       navigate("/");
     } else {
-      toast({ title: "Sign up failed. Please try again." });
+      toast.error("Sign up failed. Please try again.");
       return;
     }
   }

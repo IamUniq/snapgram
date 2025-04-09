@@ -12,29 +12,26 @@ export async function createPost(post: INewPost) {
       post.file.map(async (img) => {
         const uploadedFile = await uploadFile(img);
 
-        if (!uploadedFile) throw Error("Error uploading file");
+        if (!uploadedFile.data) throw Error("Error uploading file");
 
-        return uploadedFile.$id;
+        return uploadedFile.data;
       })
     );
 
     if (!fileIds) throw Error;
 
     for (const id of fileIds) {
-      const fileUrl = getFilePreview(id);
+      const fileUrl = getFileView(id);
 
-      if (!fileUrl) {
+      if (!fileUrl.data) {
         deleteFile(id);
         throw Error;
       }
 
-      fileUrls.push(fileUrl);
+      fileUrls.push(fileUrl.data);
     }
-
-    // Convert tags into an array
     const tags = post.tags?.replace(/ /g, "").split(",") || [];
 
-    // Save post to database
     const newPost = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.postsCollectionId,
@@ -85,24 +82,26 @@ export async function uploadFile(file: File) {
       file
     );
 
-    return uploadedFile;
-  } catch (error) {
+    if (!uploadedFile) throw Error("Failed to upload file")
+    
+    return {data: uploadedFile.$id}
+
+    // const fileUrl = `${appwriteConfig.url}/storage/buckets/${appwriteConfig.storageId}/files/${uploadedFile.$id}?project=${appwriteConfig.projectId}`
+
+    // return {fileId: uploadedFile.$id, fileUrl};
+  } catch (error:any) {
     console.error(error);
+    return {error: error.message}
   }
 }
 
-export function getFilePreview(fileId: string) {
+export function getFileView(fileId: string) {
   try {
-    const fileUrl = storage.getFilePreview(
-      appwriteConfig.storageId,
-      fileId,
-      2000,
-      2000
-    );
+    const fileUrl = storage.getFileView(appwriteConfig.storageId, fileId)
 
-    return fileUrl;
-  } catch (error) {
-    console.error(error);
+    return {data: fileUrl}
+  } catch (error:any) {
+    return {error: error.message}
   }
 }
 

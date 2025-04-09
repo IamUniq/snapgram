@@ -6,16 +6,15 @@ import {
 } from "@/components/ui/sheet";
 import { shareOptions } from "@/constants";
 import { useModalContext } from "@/context/ModalContext";
-import { useToast } from "@/hooks/use-toast";
 import { useGetUserFollowings } from "@/lib/react-query/queriesAndMutations";
+import { cn } from "@/lib/utils";
 import { useState } from 'react';
 import Loader from "./Loader";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const ShareModal = ({ userId }: { userId: string }) => {
     const [searchValue, setSearchValue] = useState("")
     const { modalToOpen, setModalToOpen } = useModalContext()
-    const { toast } = useToast()
 
     const postId = modalToOpen?.postId
 
@@ -32,10 +31,7 @@ const ShareModal = ({ userId }: { userId: string }) => {
     const copyToClipboard = () => {
         navigator.clipboard.writeText(`http://localhost:5173/posts/${postId}`)
 
-        toast({
-            type: 'background',
-            title: 'Copied',
-        })
+        toast.success("Copied")
     }
 
     const { data: userFollowings, isPending: isGettingUserFollowings } = useGetUserFollowings(userId);

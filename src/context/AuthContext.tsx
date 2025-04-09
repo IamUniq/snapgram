@@ -12,9 +12,10 @@ const INITIAL_USER = {
   imageUrl: "",
   imageId: "",
   bio: "",
+  accountId: ""
 };
 
-const INITIAL_STATE = {
+const INITIAL_STATE: IContextType = {
   user: INITIAL_USER,
   isLoading: false,
   isAuthenticated: false,
@@ -26,8 +27,8 @@ const INITIAL_STATE = {
 type IContextType = {
   user: IUser;
   isLoading: boolean;
-  setUser: React.Dispatch<React.SetStateAction<IUser>>;
   isAuthenticated: boolean;
+  setUser: React.Dispatch<React.SetStateAction<IUser>>;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   checkAuthUser: () => Promise<boolean>;
 };
@@ -54,6 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           imageUrl: currentAccount.imageUrl,
           imageId: currentAccount.imageId,
           bio: currentAccount.bio,
+          accountId: currentAccount.accountId
         });
         setIsAuthenticated(true);
         return true;

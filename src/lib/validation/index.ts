@@ -26,7 +26,10 @@ export const PostValidation = z.object({
 export const ProfileValidation = z.object({
   name: z.string().min(2, { message: "Kinda short" }),
   username: z.string().min(2, { message: "Too short" }),
-  email: z.string().email(),
+  password: z
+    .string()
+    .optional(),
+  email: z.string().email().optional(),
   bio: z.string().optional(),
   file: z.custom<File[]>().optional(),
 });

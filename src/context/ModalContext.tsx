@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-type ModalProps = 'COMMENT' | 'DELETE' | 'SHARE'
+type ModalProps = 'COMMENT' | 'DELETE' | 'SHARE' | 'PASSWORD'
 
 type IContextType = {
     modalToOpen: {

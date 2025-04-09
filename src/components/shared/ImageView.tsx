@@ -28,6 +28,8 @@ const ImageView = ({ images, containerClassname, className }: { images: string[]
     const goToSlide = (index: number) => {
         api?.scrollTo(index)
     }
+
+    console.log(images[0])
     return (
         <Carousel setApi={setApi} className={cn("", containerClassname)}>
             <CarouselContent>

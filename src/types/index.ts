@@ -73,7 +73,7 @@ export type INewUser = {
 
 export type INewComment = {
   commenterId: string;
-  postId: string;
+  contentId: string;
   quote: string;
 };
 
@@ -90,7 +90,7 @@ export type IFollowUser = {
 };
 
 export type INotification = {
-  type: 'like' | 'comment' | 'follow' | 'share' | 'newPost' | 'save';
+  type: 'like' | 'comment' | 'follow' | 'share' | 'newPost' | 'save' | 'reply';
   targetId: string;
   userId: string;
   postId?: string;

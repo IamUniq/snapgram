@@ -1,5 +1,5 @@
 import { ILikePost, INewPost, IUpdatePost } from "@/types";
-import { ID, Query } from "appwrite";
+import { ID, Models, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
 import { createNotification } from "./users";
 import { getUserFollowers } from "./following";
@@ -125,7 +125,22 @@ export async function getRecentPosts() {
 
     if (!posts) throw Error;
 
-    return posts.documents;
+    const postsWithComments = []
+
+    for (const post of posts.documents) {
+     const postComments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      [Query.equal("post", post.$id), Query.select(["$id"])]
+      )
+      
+      postsWithComments.push({
+        ...post,
+        comments: postComments.total
+      })
+    }
+
+    return postsWithComments;
   } catch (error) {
     console.error(error);
   }
@@ -210,7 +225,18 @@ export async function getPostById(postId: string) {
       postId
     );
 
-    return post;
+    const postComments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      [Query.equal("post", post.$id), Query.select(["$id"])]
+    )
+
+    const data:Models.Document = {
+      ...post,
+      comments: postComments.total,
+    }
+
+    return data
   } catch (error) {
     console.log(error);
   }

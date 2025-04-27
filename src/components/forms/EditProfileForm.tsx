@@ -32,7 +32,7 @@ const EditProfileForm = () => {
     const [dataToUpdate, setDataToUpdate] = useState<IUpdateUser | null>(null)
     const { modalToOpen, setModalToOpen } = useModalContext()
     const navigate = useNavigate();
-
+    // TODO: INVALIDATE THE CURRENT USER AFTER AN UPDATE
     const form = useForm<z.infer<typeof ProfileValidation>>({
         resolver: zodResolver(ProfileValidation),
         mode: "onChange",
@@ -85,116 +85,116 @@ const EditProfileForm = () => {
     }
 
     return (
-        <Form {...form}>
+        <Form { ...form }>
             <form
-                onSubmit={form.handleSubmit(onSubmit)}
+                onSubmit={ form.handleSubmit(onSubmit) }
                 className="flex flex-col gap-5 w-full py-7"
             >
-                {modalToOpen?.type === 'PASSWORD' &&
-                    <PasswordModal data={dataToUpdate!} />
+                { modalToOpen?.type === 'PASSWORD' &&
+                    <PasswordModal data={ dataToUpdate! } />
                 }
                 <FormField
-                    control={form.control}
+                    control={ form.control }
                     name="file"
-                    render={({ field }) => (
+                    render={ ({ field }) => (
                         <FormItem>
                             <FormControl>
                                 <ProfileUploader
-                                    fieldChange={field.onChange}
-                                    mediaUrl={user.imageUrl}
+                                    fieldChange={ field.onChange }
+                                    mediaUrl={ user.imageUrl }
                                 />
                             </FormControl>
                             <FormMessage className="shad-form_message" />
                         </FormItem>
-                    )}
+                    ) }
                 />
 
                 <h3 className="text-xl font-semibold mb-2">Account Information</h3>
                 <FormField
-                    control={form.control}
+                    control={ form.control }
                     name="name"
-                    render={({ field }) => (
+                    render={ ({ field }) => (
                         <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
-                                <Input type="text" className="shad-input" {...field} />
+                                <Input type="text" className="shad-input" { ...field } />
                             </FormControl>
 
                             <FormMessage />
                         </FormItem>
-                    )}
+                    ) }
                 />
                 <FormField
-                    control={form.control}
+                    control={ form.control }
                     name="email"
-                    render={({ field }) => (
+                    render={ ({ field }) => (
                         <FormItem>
                             <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <Input type="email" className="shad-input" {...field} />
+                                <Input type="email" className="shad-input" { ...field } />
                             </FormControl>
 
                             <FormMessage />
                         </FormItem>
-                    )}
+                    ) }
                 />
                 <FormField
-                    control={form.control}
+                    control={ form.control }
                     name="password"
-                    render={({ field }) => (
+                    render={ ({ field }) => (
                         <FormItem>
                             <FormLabel>Password</FormLabel>
                             <FormControl>
-                                <Input type="password" className="shad-input" {...field} />
+                                <Input type="password" className="shad-input" { ...field } />
                             </FormControl>
 
                             <FormMessage />
                         </FormItem>
-                    )}
+                    ) }
                 />
 
                 <h3 className="text-xl font-semibold mt-7 mb-2">Profile Information</h3>
                 <FormField
-                    control={form.control}
+                    control={ form.control }
                     name="username"
-                    render={({ field }) => (
+                    render={ ({ field }) => (
                         <FormItem>
                             <FormLabel>Username</FormLabel>
                             <FormControl>
-                                <Input type="text" className="shad-input" {...field} />
+                                <Input type="text" className="shad-input" { ...field } />
                             </FormControl>
 
                             <FormMessage />
                         </FormItem>
-                    )}
+                    ) }
                 />
                 <FormField
-                    control={form.control}
+                    control={ form.control }
                     name="bio"
-                    render={({ field }) => (
+                    render={ ({ field }) => (
                         <FormItem>
                             <FormLabel>Bio</FormLabel>
                             <FormControl>
                                 <Textarea
                                     className="shad-textarea"
-                                    {...field}
+                                    { ...field }
                                 />
                             </FormControl>
 
                             <FormMessage />
                         </FormItem>
-                    )}
+                    ) }
                 />
                 <Button
                     type="submit"
-                    disabled={!form.formState.isDirty}
+                    disabled={ !form.formState.isDirty }
                     className="shad-button_primary"
                 >
-                    {isUpdatingProfile ? (
+                    { isUpdatingProfile ? (
                         <Loader />
                     ) : (
                         "Update Profile"
-                    )}
+                    ) }
                 </Button>
             </form>
         </Form>

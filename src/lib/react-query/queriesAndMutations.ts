@@ -43,9 +43,12 @@ import {
 
 import {
   createComment,
+  createReply,
   deleteComment,
   getComments,
+  getReplies,
   likeComment,
+  likeReply
 } from "../appwrite/api/comments";
 
 import {
@@ -261,12 +264,12 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: (user: IUpdateUser) => updateUser(user),
-    onSuccess: (data) =>{
+    onSuccess: (user) =>{
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_CURRENT_USER],
+        queryKey: [QUERY_KEYS.GET_CURRENT_USER, user.data?.$id],
       }),
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, user.data?.$id],
       })
     }
   });
@@ -276,7 +279,7 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ comment, postCreatorId }: { comment: INewComment;  postCreatorId: string}) => createComment(comment, postCreatorId),
+    mutationFn: ({ data, creatorId }: { data: INewComment;  creatorId: string}) => createComment(data, creatorId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_COMMENTS, data?.post.$id],
@@ -288,7 +291,7 @@ export const useCreateComment = () => {
   });
 };
 
-export const useGetComments = (postId: string) => {
+export const useGetPostComments = (postId: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_COMMENTS, postId],
     queryFn: () => getComments(postId),
@@ -301,12 +304,12 @@ export const useLikeComment = () => {
 
   return useMutation({
     mutationFn: ({
-      commentId,
+      contentId,
       likesArray,
     }: {
-      commentId: string;
+      contentId: string;
       likesArray: string[];
-    }) => likeComment(commentId, likesArray),
+    }) => likeComment(contentId, likesArray),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id],
@@ -324,6 +327,46 @@ export const useDeleteComment = (postId: string) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
       }),
+  });
+};
+
+export const useCreateReply = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ data, creatorId }: { data: INewComment; creatorId: string }) => createReply(data, creatorId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_COMMENT_REPLIES, data?.comment.$id],
+      })
+    },
+  });
+};
+
+export const useLikeReply = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      contentId,
+      likesArray,
+    }: {
+      contentId: string;
+      likesArray: string[];
+    }) => likeReply(contentId, likesArray),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_COMMENT_REPLIES, data?.comment.$id],
+      });
+    },
+  });
+};
+
+export const useGetCommentReplies = (commentId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_COMMENT_REPLIES, commentId],
+    queryFn: () => getReplies(commentId),
+    enabled: !!commentId,
   });
 };
 

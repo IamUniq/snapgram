@@ -26,4 +26,5 @@ export enum QUERY_KEYS {
 
   // COMMENT KEYS
   GET_COMMENTS = "getComments",
+  GET_COMMENT_REPLIES = "getCommentReplies"
 }

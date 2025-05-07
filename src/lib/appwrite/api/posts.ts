@@ -1,4 +1,4 @@
-import { ILikePost, INewPost, IUpdatePost } from "@/types";
+import { ILikePost, INewPost, INewStory, IUpdatePost } from "@/types";
 import { ID, Models, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
 import { createNotification } from "./users";
@@ -350,6 +350,84 @@ export async function searchPosts(searchTerm: string) {
     if (!posts) throw Error;
 
     return posts.documents;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function createStory(post: INewStory) {
+  try {
+    const file = await uploadFile(post.media)
+    if (!file.data) throw Error("Error uploading file");
+
+    const fileUrl = getFileView(file.data);
+
+    if (!fileUrl.data) {
+      deleteFile(file.data);
+      throw Error;
+    }
+
+    const newStory = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.storiesCollectionId,
+      ID.unique(),
+      {
+        mediaUrl: fileUrl.data,
+        mediaId: file.data,
+        user: post.userId
+      }
+    );
+
+    if (!newStory) {
+      await deleteFile(file.data);
+      throw Error;
+    }
+
+    const userFollowers = await getUserFollowers(post.userId);
+
+    if (!userFollowers) return newStory;
+
+    for (const follower of userFollowers?.documents) {
+      await createNotification({
+        type: "newStory",
+        targetId: follower.$id,
+        userId: post.userId,
+        postId: newStory.$id,
+      });
+    }
+
+    const data = {
+      $id: newStory.$id,
+      createdAt: newStory.$createdAt,
+      mediaUrl: newStory.mediaUrl,
+      userId: newStory.user.$id
+    }
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getUserStories(userId: string) {
+  try {
+    const now = new Date()
+    const time24HoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+    const userStories = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.storiesCollectionId,
+      [
+        Query.equal("user", userId),
+        Query.greaterThanEqual("$createdAt", time24HoursAgo),
+        Query.select(["$id", "mediaId", "mediaUrl", "views", "type"]),
+        Query.orderDesc("$createdAt")
+      ]
+    );
+
+    if (!userStories) throw Error;
+
+    return userStories;
   } catch (error) {
     console.log(error);
   }

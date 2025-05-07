@@ -1,13 +1,11 @@
-import HighlightStories from "@/components/shared/HighlightStories";
+import { HighlightStories } from "@/components/shared";
 import Loader from "@/components/shared/Loader";
 import PostCard from "@/components/shared/PostCard";
 import UserContent from "@/components/shared/UserContent";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetRecentPosts, useGetUsers } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
-import { Link } from "react-router-dom";
 
 const Home = () => {
   const {
@@ -21,20 +19,19 @@ const Home = () => {
   return (
     <div className="flex flex-1">
       <div className="home-container">
-        <HighlightStories />
+        <HighlightStories type="story" />
+
         <div className="home-posts">
           <h2 className="h3-bold md:h2-bold text-left w-full">Home Feed</h2>
 
-          { !posts || posts?.length === 0 ?
+          { !posts || posts?.length === 0 || isPostLoading ?
             (
-              <div className="flex-center flex-col gap-4">
-                <h2 className="text-lg text-center">What's a social media platform without any pictures.</h2>
-                <Button asChild className="bg-primary-500">
-                  <Link to='/create-post'>Tell your story</Link>
-                </Button>
-              </div>
-            ) : (isPostLoading) ? (
-              <Skeleton className="post-card h-64" />
+              <Skeleton className="post-card h-64">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="w-10 h-10 rounded-full bg-dark-4" />
+                  <Skeleton className="w-32 h-4 rounded-full bg-dark-4" />
+                </div>
+              </Skeleton>
             ) : (
               <ul className="flex flex-col flex-1 gap-9 w-full">
                 { posts.map((post: Models.Document, index: number) => (

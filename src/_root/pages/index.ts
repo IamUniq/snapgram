@@ -10,3 +10,5 @@ export { default as UpdateProfile } from "./UpdateProfile";
 export { default as LikedPosts } from "./LikedPosts";
 export { default as Settings } from "./Settings";
 export { default as Notifications } from "./Notifications";
+export { default as CreateStory } from "./CreateStory"
+export { default as ViewStories } from "./ViewStories"

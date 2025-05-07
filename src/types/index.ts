@@ -90,8 +90,13 @@ export type IFollowUser = {
 };
 
 export type INotification = {
-  type: 'like' | 'comment' | 'follow' | 'share' | 'newPost' | 'save' | 'reply';
+  type: 'like' | 'comment' | 'follow' | 'share' | 'newPost' | 'save' | 'reply' | 'newStory';
   targetId: string;
   userId: string;
   postId?: string;
 }
+
+export type INewStory = {
+  media: File
+  userId: string;
+};

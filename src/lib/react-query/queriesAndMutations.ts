@@ -4,6 +4,7 @@ import {
   ILikePost,
   INewComment,
   INewPost,
+  INewStory,
   INewUser,
   IUpdatePost,
   IUpdateUser,
@@ -28,6 +29,7 @@ import {
 
 import {
   createPost,
+  createStory,
   deletePost,
   deleteSavedPost,
   getInfinitePosts,
@@ -35,6 +37,7 @@ import {
   getRecentPosts,
   getRelatedPosts,
   getUserPosts,
+  getUserStories,
   likePost,
   savePost,
   searchPosts,
@@ -439,3 +442,27 @@ export const useUpdateNotifications = (notificationIds: string[]) => {
     mutationFn: () => updateNotifications(notificationIds),
   });
 }
+
+export const useCreateStory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (post: INewStory) => createStory(post),
+    onSuccess: (data) =>{
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, data?.userId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.userId],
+      })
+    }
+  });
+};
+
+export const useGetUserStories = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_STORIES, userId],
+    queryFn: () => getUserStories(userId),
+    enabled: !!userId,
+  });
+};

@@ -1,7 +1,7 @@
 import { INewUser, INotification, IUpdateAccount, IUpdateUser } from "@/types";
-import { ID, Query } from "appwrite";
+import { ID, Models, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases } from "../config";
-import { deleteFile, getFileView, uploadFile } from "./posts";
+import { deleteFile, getFileView, getUserStories, uploadFile } from "./posts";
 
 export async function createUserAccount(user: INewUser) {
   try {
@@ -153,7 +153,7 @@ export async function getUsers(limit?: number) {
 
 export async function getUserById(userId: string) {
   try {
-    const user = databases.getDocument(
+    const user = await databases.getDocument(
       appwriteConfig.databaseId,
       appwriteConfig.usersCollectionId,
       userId
@@ -161,7 +161,14 @@ export async function getUserById(userId: string) {
 
     if (!user) throw Error;
 
-    return user;
+    const userStories = await getUserStories(user.$id)
+    
+    const data:Models.Document = {
+      ...user,
+      stories: userStories?.total || 0
+    }
+
+    return data;
   } catch (error) {
     console.log(error);
   }
@@ -169,7 +176,8 @@ export async function getUserById(userId: string) {
 
 export async function updateUser(user: IUpdateUser) {
   const hasFileToUpdate = user.file.length > 0;
-  const accountToBeUpdated = !!user.email || !!user.name || user.newPassword !== ''
+  const accountToBeUpdated = user.email || user.name || user.newPassword
+  
   try {
     let image = {
       imageUrl: user.imageUrl,
@@ -197,7 +205,7 @@ export async function updateUser(user: IUpdateUser) {
         newPassword: user.newPassword
       })
       
-      if(!updateAccount.success) return {success: false , error: updateAccount.error}
+      if (!updateAccount.success) return { success: false, error: updateAccount.error }
     }
 
     const updatedUser = await databases.updateDocument(

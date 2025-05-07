@@ -2,6 +2,7 @@ import { IFollowUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { appwriteConfig, databases } from "../config";
 import { createNotification } from "./users";
+import { getUserStories } from "./posts";
 
 export async function isFollowingUser(data: IFollowUser) {
   try {
@@ -111,12 +112,15 @@ export async function getUserFollowers(userId: string) {
         ]
       );
 
+      const userStories = await getUserStories(userId.documents[0].$id)
+
       const data = {
         $id: userId.documents[0].$id,
         name: user.followerId.name,
         username: user.followerId.username,
         imageUrl: user.followerId.imageUrl,
         recordId: user.$id,
+        stories: userStories?.total 
       };
 
       users.push(data);
@@ -165,12 +169,15 @@ export async function getUserFollowings(userId: string) {
         ]
       );
 
+      const userStories = await getUserStories(userId.documents[0].$id)
+      
       const data = {
         $id: userId.documents[0].$id,
         name: user.followingId.name,
         username: user.followingId.username,
         imageUrl: user.followingId.imageUrl,
         recordId: user.$id,
+        stories: userStories?.total
       };
 
       users.push(data);

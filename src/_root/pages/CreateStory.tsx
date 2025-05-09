@@ -29,11 +29,10 @@ export default function CreateStoryPage() {
     }
 
     const handlePost = async () => {
-        console.log("Posting story...", selectedMedia)
         const story = await createStory({ userId: user.id, media: selectedMedia?.media! })
 
         if (story) {
-            toast.success("SUCCESS")
+            toast.success("Story has been shared")
             navigate(-1)
         }
     }

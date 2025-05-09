@@ -14,18 +14,18 @@ import {
   PostDetails,
   Profile,
   Saved,
-  UpdateProfile,
   Settings,
   Notifications,
   CreateStory,
-  ViewStories
+  ViewStories,
+  Reels
 } from "./_root/pages";
 import EditProfile from "./_root/pages/EditProfile";
 import { Toaster } from "./components/ui/sonner";
 
 const App = () => {
   return (
-    <main className="flex h-screen">
+    <main className="flex min-h-[13rem]">
       <Routes>
         {/* public routes */ }
         <Route element={ <AuthLayout /> }>
@@ -37,6 +37,7 @@ const App = () => {
         <Route element={ <RootLayout /> }>
           <Route index element={ <Home /> } />
           <Route path="/explore" element={ <Explore /> } />
+          <Route path="/reels" element={ <Reels /> } />
           <Route path="/saved" element={ <Saved /> } />
           <Route path="/notifications" element={ <Notifications /> } />
           <Route path="/all-users" element={ <AllUsers /> } />
@@ -51,7 +52,6 @@ const App = () => {
           <Route path="/create-story" element={ <CreateStory /> } />
           {/* Chat */ }
           <Route path="/profile/:id/chat" element={ <EditProfile /> } />
-          <Route path="/update-profile/:id" element={ <UpdateProfile /> } />
         </Route>
       </Routes>
 

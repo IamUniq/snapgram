@@ -461,7 +461,7 @@ export const useCreateStory = () => {
 
 export const useGetUserStories = (userId: string) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GET_USER_STORIES, userId],
+    queryKey: [QUERY_KEYS.GET_USER_STORIES],
     queryFn: () => getUserStories(userId),
     enabled: !!userId,
   });

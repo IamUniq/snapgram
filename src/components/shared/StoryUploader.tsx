@@ -37,7 +37,7 @@ const StoryUploader = ({ setMediaType, onMediaSelect }: FileUploaderProps) => {
                 />
 
                 <p>
-                    Upload Photo
+                    Upload From Device
                 </p>
             </div>
         </div>

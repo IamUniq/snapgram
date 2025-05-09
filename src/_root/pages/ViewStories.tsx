@@ -25,12 +25,12 @@ const ViewStories = () => {
     const medias = stories.documents.map(story => {
         return {
             url: story.mediaUrl,
-            type: story.type
+            type: story.mediaType
         } as { url: string; type: "video" | 'text' | 'image' }
     })
 
     return (
-        <div className="relative w-full flex-center h-[60vh] md:h-full">
+        <div className="relative w-full flex-center h-[88vh] md:h-full">
             <div className="absolute top-7 left-6 flex items-center gap-1 text-sm cursor-pointer z-20" onClick={ () => navigate(-1) }>
                 <img src="/assets/icons/back.svg" width={ 20 } height={ 20 } />
                 <span>Go Back</span>

@@ -367,6 +367,8 @@ export async function createStory(post: INewStory) {
       throw Error;
     }
 
+    const mediaType = post.media.type.split("/")[0]
+
     const newStory = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.storiesCollectionId,
@@ -374,7 +376,8 @@ export async function createStory(post: INewStory) {
       {
         mediaUrl: fileUrl.data,
         mediaId: file.data,
-        user: post.userId
+        user: post.userId,
+        mediaType
       }
     );
 
@@ -383,9 +386,17 @@ export async function createStory(post: INewStory) {
       throw Error;
     }
 
-    const userFollowers = await getUserFollowers(post.userId);
+    const data = {
+      $id: newStory.$id,
+      createdAt: newStory.$createdAt,
+      mediaUrl: newStory.mediaUrl,
+      userId: newStory.user.$id,
+     mediaType
+    }
 
-    if (!userFollowers) return newStory;
+     const userFollowers = await getUserFollowers(post.userId);
+
+    if (!userFollowers) return data;
 
     for (const follower of userFollowers?.documents) {
       await createNotification({
@@ -394,13 +405,6 @@ export async function createStory(post: INewStory) {
         userId: post.userId,
         postId: newStory.$id,
       });
-    }
-
-    const data = {
-      $id: newStory.$id,
-      createdAt: newStory.$createdAt,
-      mediaUrl: newStory.mediaUrl,
-      userId: newStory.user.$id
     }
 
     return data;
@@ -420,7 +424,7 @@ export async function getUserStories(userId: string) {
       [
         Query.equal("user", userId),
         Query.greaterThanEqual("$createdAt", time24HoursAgo),
-        Query.select(["$id", "mediaId", "mediaUrl", "views", "type"]),
+        Query.select(["$id", "mediaId", "mediaUrl", "views", "mediaType"]),
         Query.orderDesc("$createdAt")
       ]
     );

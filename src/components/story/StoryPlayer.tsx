@@ -77,7 +77,7 @@ const StoryPlayer = ({ medias }: StoryPlayerProps) => {
     };
 
     return (
-        <div className="relative mt-48">
+        <div className="relative flex-center h-full m-auto">
             {/* PROGRESS BARS */ }
             <div className="absolute top-10 flex-center gap-2 w-full">
                 { medias.map((_, index) => {
@@ -97,9 +97,10 @@ const StoryPlayer = ({ medias }: StoryPlayerProps) => {
                 }) }
             </div>
 
-            <div className="relative flex-center w-full h-[20rem] overflow-hidden bg-dark-4 max-w-md mx-auto">
+            <div className="relative flex-center w-full h-[60%] md:h-[80%] overflow-hidden bg-dark-4 max-w-md mx-auto">
                 { current.type === "video" && (
                     <video
+
                         ref={ videoRef }
                         src={ current.url }
                         controls={ false }

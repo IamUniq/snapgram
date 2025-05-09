@@ -6,9 +6,10 @@ export { default as Explore } from "./Explore";
 export { default as PostDetails } from "./PostDetails";
 export { default as Profile } from "./Profile";
 export { default as Saved } from "./Saved";
-export { default as UpdateProfile } from "./UpdateProfile";
+export { default as EditProfile } from "./EditProfile";
 export { default as LikedPosts } from "./LikedPosts";
 export { default as Settings } from "./Settings";
 export { default as Notifications } from "./Notifications";
 export { default as CreateStory } from "./CreateStory"
 export { default as ViewStories } from "./ViewStories"
+export { default as Reels } from "./Reels"

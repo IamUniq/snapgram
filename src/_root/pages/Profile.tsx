@@ -1,12 +1,12 @@
 import { Link, Outlet, Route, Routes, useLocation, useParams } from "react-router-dom";
 
 import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById, useGetUserFollowers, useGetUserFollowings } from "@/lib/react-query/queriesAndMutations";
+import { useGetUserById, useGetUserFollowers, useGetUserFollowings, useGetUserStories } from "@/lib/react-query/queriesAndMutations";
 
 import { LikedPosts } from "@/_root/pages";
 import { FollowButton, GridPostList, HighlightStories, Loader, ShareModal } from "@/components/shared";
 import UserContent from "@/components/shared/UserContent";
-import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -20,12 +20,13 @@ const Profile = () => {
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false)
 
   const { data: currentUser, isPending: isGettingUser } = useGetUserById(id || "")
+  const { data: userStories, isPending: isGettingUserStories } = useGetUserStories(id || "")
   const { data: userFollowers } = useGetUserFollowers(id || "")
   const { data: userFollowings } = useGetUserFollowings(id || "")
 
-  if (!currentUser || isGettingUser)
+  if (!currentUser || isGettingUser || isGettingUserStories)
     return (
-      <div className="flex-center w-full h-full">
+      <div className="flex-center w-full h-[90vh]">
         <Loader />
       </div>
     );
@@ -44,14 +45,24 @@ const Profile = () => {
 
       <div className="flex flex-col items-start gap-6 w-full">
         <div className="flex gap-8 relative w-full">
-          <AlertDialog>
-            <AlertDialogTrigger>
+          <Dialog>
+            <DialogTrigger>
               <img
                 src={ currentUser.imageUrl || "/assets/icons/profile-placeholder.svg" }
-                className="w-28 h-28 rounded-full"
+                className={ cn("w-28 h-28 rounded-full", {
+                  'border-2 border-primary-500': userStories && userStories?.total > 0
+                }) }
               />
-            </AlertDialogTrigger>
-            <AlertDialogContent className={ cn("w-64 rounded-lg bg-dark-4 text-light-2", currentUser.stories.length > 0 ? "h-36" : "h-28") }>
+            </DialogTrigger>
+            <DialogContent
+              showCloseButton={ false }
+              className={ cn("w-64 rounded-lg bg-dark-4 text-light-2",
+                userStories && userStories.total > 0 ? "h-36" : "h-28"
+              ) }>
+              <DialogHeader className="sr-only">
+                <DialogTitle >Update Profile</DialogTitle>
+                <DialogDescription >Update your profile, view story or add one</DialogDescription>
+              </DialogHeader>
               <Link to={ `/profile/${user.id}/edit` } className="flex items-center">
                 <img src="/assets/icons/edit.svg"
                   width={ 20 } height={ 20 }
@@ -59,7 +70,7 @@ const Profile = () => {
                 />
                 <p className="small-medium">{ `${currentUser.imageUrl ? "Update" : "Add"} Profile Picture` }</p>
               </Link>
-              { currentUser.stories.length > 0 &&
+              { userStories && userStories?.total > 0 &&
                 <Link to={ `/profile/${user.id}/story` } className="flex items-center">
                   <Play size={ 20 } color="#877eff" className="mr-2" />
                   <p className="small-medium">View Story</p>
@@ -73,8 +84,8 @@ const Profile = () => {
                 />
                 Add Story
               </Link>
-            </AlertDialogContent>
-          </AlertDialog>
+            </DialogContent>
+          </Dialog>
 
           <div className="flex flex-col gap-3 mt-4">
             <div className="flex flex-col">
@@ -139,7 +150,7 @@ const Profile = () => {
           </Button>
         </div>
 
-        <HighlightStories />
+        <HighlightStories type="highlight" />
       </div>
 
       <div className="flex max-w-5xl w-full">

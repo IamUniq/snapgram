@@ -1,19 +1,12 @@
 import { Databases, Query } from 'appwrite';
 import { Client } from 'node-appwrite';
 
-const config = {
-  databaseId: import.meta.DATABASE_ID,
-  storageId: import.meta.STORAGE_ID,
-  storiesCollectionId: import.meta.STORIES_COLLECTION_ID,
-  apiKey: import.meta.APPWRITE_FUNCTION_API_KEY
-}
-
 // Appwrite function to automatically delete old stories
 export default async ({ res, log }) => {
   const client = new Client()
     .setEndpoint(process.env.APPWRITE_FUNCTION_API_ENDPOINT)
     .setProject(process.env.APPWRITE_FUNCTION_PROJECT_ID)
-    .setKey(config.apiKey);
+    .setKey(process.env.APPWRITE_FUNCTION_API_KEY);
   
   const databases = new Databases(client);
   const storage = new Storage(client);
@@ -22,19 +15,19 @@ export default async ({ res, log }) => {
 
   try {
     const stories = await databases.listDocuments(
-      config.databaseId,
-      config.storiesCollectionId,
+      process.env.DATABASE_ID,
+      process.env.STORIES_COLLECTION_ID,
       [
         Query.lessThan("$createdAt", cutoff)
       ]
     );
 
     for (const story of stories.documents) {
-      await storage.deleteFile(config.storageId, story.mediaId);
+      await storage.deleteFile(process.env.STORAGE_ID, story.mediaId);
       
       await databases.deleteDocument(
-        config.databaseId,
-        config.storiesCollectionId,
+        process.env.DATABASE_ID,
+        process.env.STORIES_COLLECTION_ID,
         story.$id
       );
 

@@ -23,7 +23,7 @@ const Explore = () => {
 
   if (!posts) {
     return (
-      <div className="flex-center w-full h-full">
+      <div className="flex-center w-full h-[90vh]">
         <Loader />
       </div>
     )
@@ -40,16 +40,16 @@ const Explore = () => {
         <div className="flex gap-1 px-4 w-full rounded-lg bg-dark-4">
           <img
             src="/assets/icons/search.svg"
-            width={24}
-            height={24}
+            width={ 24 }
+            height={ 24 }
             alt="search"
           />
           <Input
             type="text"
             placeholder="Search"
             className="explore-search"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+            value={ searchValue }
+            onChange={ (e) => setSearchValue(e.target.value) }
           />
         </div>
       </div>
@@ -61,31 +61,31 @@ const Explore = () => {
           <p className="small-medium md:base-medium text-light-2">All</p>
           <img
             src="/assets/icons/filter.svg"
-            width={20}
-            height={20}
+            width={ 20 }
+            height={ 20 }
             alt="filter"
           />
         </div>
       </div>
 
       <div className="flex flex-wrap gap-9 w-full max-w-5xl">
-        {shouldShowSearchResults ? (
+        { shouldShowSearchResults ? (
           <SearchResults
-            isSearchFetching={isSearchingFetching}
-            searchedPosts={searchedPosts!}
+            isSearchFetching={ isSearchingFetching }
+            searchedPosts={ searchedPosts! }
           />
         ) : shouldShowPosts ? (
           <p className="text-light-4 mt-10 text-center w-full">End of posts</p>
         ) : posts.pages.map((item, index) => (
-          <GridPostList key={`page-${index}`} posts={item!.documents} />
-        ))}
+          <GridPostList key={ `page-${index}` } posts={ item!.documents } />
+        )) }
       </div>
 
-      {hasNextPage && !searchValue && (
-        <div ref={ref} className="mt-10">
+      { hasNextPage && !searchValue && (
+        <div ref={ ref } className="mt-10">
           <Loader />
         </div>
-      )}
+      ) }
     </div>
   )
 };

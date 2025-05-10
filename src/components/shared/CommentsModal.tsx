@@ -43,14 +43,6 @@ const CommentsModal = ({ userId }: CommentsModalProps) => {
             : setModalToOpen({ type: 'COMMENT', postId })
     }
 
-    if (isGettingComments) {
-        return (
-            <div className="w-full h-full flex-center">
-                <Loader />
-            </div>
-        )
-    }
-
     return (
         <Sheet
             open={ modalToOpen?.type === 'COMMENT' }
@@ -58,10 +50,14 @@ const CommentsModal = ({ userId }: CommentsModalProps) => {
         >
             <SheetContent side="bottom" className="w-full h-[70vh] overflow-y-scroll custom-scrollbar md:w-[70vw] bg-dark-2 rounded-t-xl mx-auto border-dark-4">
                 <SheetHeader>
-                    <SheetTitle aria-label={ `Comments for ${postId}` }>Comments</SheetTitle>
-                    <SheetDescription className="hidden">Comments for { postId }</SheetDescription>
+                    <SheetTitle>Comments</SheetTitle>
+                    <SheetDescription className="sr-only">Comments for { postId }</SheetDescription>
                 </SheetHeader>
-                { !comments || comments.length === 0
+                { isGettingComments ? (
+                    <div className="w-full h-full flex-center">
+                        <Loader />
+                    </div>
+                ) : !comments || comments.length === 0
                     ? <p className="body-bold text-light-2 text-center h-[90%] flex-center">No comments yet</p>
                     : (
                         <ul className="mt-4 flex flex-col gap-3">
@@ -82,7 +78,7 @@ const CommentsModal = ({ userId }: CommentsModalProps) => {
                     ) }
 
                 <div className="w-[90%] fixed bottom-3">
-                    <CommentForm type="comment" contentId={ postId || "" } creatorId={ postCreatorId } />
+                    <CommentForm type="comment" contentId={ postId! } creatorId={ postCreatorId } />
                 </div>
             </SheetContent>
         </Sheet>

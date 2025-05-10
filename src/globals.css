@@ -123,7 +123,7 @@
   }
 
   .user-grid {
-    @apply w-full flex flex-1 flex-wrap gap-7 max-w-5xl;
+    @apply w-full flex flex-wrap gap-7 max-w-5xl;
   }
 
   /* Explore */
@@ -158,7 +158,7 @@
   }
 
   .post_details-card {
-    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex-col flex xl:flex-row border xl:h-[29rem] border-dark-4 xl:rounded-l-[24px];
+    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex-col flex xl:flex-row border xl:h-[19.8rem] border-dark-4 xl:rounded-l-[24px];
   }
 
   .post_details-img {
@@ -225,7 +225,7 @@
 
   /* Left sidebar */
   .leftsidebar {
-    @apply hidden md:flex px-6 py-10 flex-col justify-between min-w-[270px] bg-dark-2 h-svh overflow-scroll custom-scrollbar;
+    @apply hidden md:flex fixed left-0 h-svh px-6 py-10 flex-col justify-between w-[256px] bg-dark-2 overflow-y-scroll custom-scrollbar;
   }
 
   .leftsidebar-link {

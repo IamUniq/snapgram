@@ -17,7 +17,7 @@ const Home = () => {
   const { data: users, isPending: isFetchingUsers, isError: isFetchingFailed } = useGetUsers(10);
 
   return (
-    <div className="flex flex-1">
+    <div className="flex h-full">
       <div className="home-container">
         <HighlightStories type="story" />
 

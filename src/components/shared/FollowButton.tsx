@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import { useFollowUser, useIsFollowingUser, useUnFollowUser } from "@/lib/react-query/queriesAndMutations";
 import Loader from "./Loader";
 import React, { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 type FollowButtonProps = {
     followerId: string;
     followingId: string;
+    className?: string;
 }
-const FollowButton = ({ followerId, followingId }: FollowButtonProps) => {
+const FollowButton = ({ followerId, followingId, className }: FollowButtonProps) => {
     const [isCurrentlyFollowing, setIsCurrentlyFollowing] = useState(false)
 
     const { data: isFollowingUser } = useIsFollowingUser({ followerId, followingId })
@@ -42,8 +44,8 @@ const FollowButton = ({ followerId, followingId }: FollowButtonProps) => {
     return (
         <Button
             variant="ghost"
-            className="bg-primary-500"
-            onClick={handleFollow}
+            className={ cn("bg-primary-500", className) }
+            onClick={ handleFollow }
         >
             {
                 (isFollowingPending || isUnFollowingUser)

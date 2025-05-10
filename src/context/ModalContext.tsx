@@ -25,8 +25,8 @@ export function ModalProvider({ children }: { children: React.ReactNode }) {
     const [modalToOpen, setModalToOpen] = useState<{ type: ModalProps; postId?: string } | null>(null);
 
     return (
-        <ModalContext.Provider value={{ modalToOpen, setModalToOpen }}>
-            {children}
+        <ModalContext.Provider value={ { modalToOpen, setModalToOpen } }>
+            { children }
         </ModalContext.Provider>
     );
 }

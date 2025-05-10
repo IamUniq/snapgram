@@ -25,7 +25,7 @@ import { Toaster } from "./components/ui/sonner";
 
 const App = () => {
   return (
-    <main className="flex min-h-[13rem]">
+    <main className="flex">
       <Routes>
         {/* public routes */ }
         <Route element={ <AuthLayout /> }>

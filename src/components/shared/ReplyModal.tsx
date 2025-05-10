@@ -27,15 +27,7 @@ interface ReplyModalProps {
 }
 
 const ReplyModal = ({ open, userId, setOpen, parentComment }: ReplyModalProps) => {
-    const { data: replies, isPending } = useGetCommentReplies(parentComment.$id)
-
-    if (isPending) {
-        return (
-            <div className="w-full h-full flex-center">
-                <Loader />
-            </div>
-        )
-    }
+    const { data: replies, isPending: isGettingReplies } = useGetCommentReplies(parentComment.$id)
 
     return (
         <Sheet
@@ -55,7 +47,11 @@ const ReplyModal = ({ open, userId, setOpen, parentComment }: ReplyModalProps) =
                         <p className="text-base">{ parentComment.content }</p>
                     </div>
                 </div>
-                { !replies || replies.documents.length === 0
+                { isGettingReplies ? (
+                    <div className="w-full h-full flex-center">
+                        <Loader />
+                    </div>
+                ) : !replies || replies.documents.length === 0
                     ? <p className="body-bold text-light-2 text-center h-[60%] flex-center">No replies yet</p>
                     : (
                         <ul className="mt-4 flex flex-col gap-3 ml-14 border-l border-gray-500 px-5">

@@ -1,4 +1,4 @@
-import { Link, Outlet, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { Link, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById, useGetUserFollowers, useGetUserFollowings, useGetUserStories } from "@/lib/react-query/queriesAndMutations";
@@ -16,6 +16,7 @@ const Profile = () => {
   const { user } = useUserContext();
   const { id } = useParams()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
 
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false)
 
@@ -23,6 +24,8 @@ const Profile = () => {
   const { data: userStories, isPending: isGettingUserStories } = useGetUserStories(id || "")
   const { data: userFollowers } = useGetUserFollowers(id || "")
   const { data: userFollowings } = useGetUserFollowings(id || "")
+
+  const hasStory = userStories && userStories?.total > 0
 
   if (!currentUser || isGettingUser || isGettingUserStories)
     return (
@@ -45,55 +48,69 @@ const Profile = () => {
 
       <div className="flex flex-col items-start gap-6 w-full">
         <div className="flex gap-8 relative w-full">
-          <Dialog>
-            <DialogTrigger>
+          { currentUser.$id === user.id ? (
+            <Dialog>
+              <DialogTrigger>
+                <img
+                  src={ currentUser.imageUrl || "/assets/icons/profile-placeholder.svg" }
+                  className={ cn("w-20 h-20 sm:w-28 sm:h-28 rounded-full", {
+                    'border-2 border-primary-500': hasStory
+                  }) }
+                />
+              </DialogTrigger>
+              <DialogContent
+                showCloseButton={ false }
+                className={ cn("w-64 rounded-lg bg-dark-4 text-light-2",
+                  hasStory ? "h-36" : "h-28"
+                ) }>
+                <DialogHeader className="sr-only">
+                  <DialogTitle>Update Profile</DialogTitle>
+                  <DialogDescription >Update your profile, view story or add one</DialogDescription>
+                </DialogHeader>
+                <Link to={ `/profile/${user.id}/edit` } className="flex items-center">
+                  <img src="/assets/icons/edit.svg"
+                    width={ 20 } height={ 20 }
+                    className="mr-2"
+                  />
+                  <p className="small-medium">{ `${currentUser.imageUrl ? "Update" : "Add"} Profile Picture` }</p>
+                </Link>
+                { hasStory &&
+                  <Link to={ `/profile/${user.id}/story` } className="flex items-center">
+                    <Play size={ 20 } color="#877eff" className="mr-2" />
+                    <p className="small-medium">View Story</p>
+                  </Link>
+                }
+                <Link to="/create-story" className="flex items-center">
+                  <img
+                    src={ "/assets/icons/gallery-add.svg" }
+                    width={ 20 } height={ 20 }
+                    className="mr-2"
+                  />
+                  Add Story
+                </Link>
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <div onClick={ () => {
+              hasStory && navigate
+            } }>
               <img
                 src={ currentUser.imageUrl || "/assets/icons/profile-placeholder.svg" }
-                className={ cn("w-28 h-28 rounded-full", {
-                  'border-2 border-primary-500': userStories && userStories?.total > 0
+                className={ cn("w-20 h-20 sm:w-28 sm:h-28 rounded-full", {
+                  'border-2 border-primary-500': hasStory
                 }) }
               />
-            </DialogTrigger>
-            <DialogContent
-              showCloseButton={ false }
-              className={ cn("w-64 rounded-lg bg-dark-4 text-light-2",
-                userStories && userStories.total > 0 ? "h-36" : "h-28"
-              ) }>
-              <DialogHeader className="sr-only">
-                <DialogTitle >Update Profile</DialogTitle>
-                <DialogDescription >Update your profile, view story or add one</DialogDescription>
-              </DialogHeader>
-              <Link to={ `/profile/${user.id}/edit` } className="flex items-center">
-                <img src="/assets/icons/edit.svg"
-                  width={ 20 } height={ 20 }
-                  className="mr-2"
-                />
-                <p className="small-medium">{ `${currentUser.imageUrl ? "Update" : "Add"} Profile Picture` }</p>
-              </Link>
-              { userStories && userStories?.total > 0 &&
-                <Link to={ `/profile/${user.id}/story` } className="flex items-center">
-                  <Play size={ 20 } color="#877eff" className="mr-2" />
-                  <p className="small-medium">View Story</p>
-                </Link>
-              }
-              <Link to="/create-story" className="flex items-center">
-                <img
-                  src={ "/assets/icons/gallery-add.svg" }
-                  width={ 20 } height={ 20 }
-                  className="mr-2"
-                />
-                Add Story
-              </Link>
-            </DialogContent>
-          </Dialog>
+            </div>
+          ) }
 
-          <div className="flex flex-col gap-3 mt-4">
+
+          <div className="flex flex-col gap-3 md:mt-4">
             <div className="flex flex-col">
-              <h1 className="text-2xl font-bold">{ currentUser.name }</h1>
-              <h2 className="text-gray-500">@{ currentUser.username }</h2>
+              <h1 className="text-xl md:text-2xl font-bold">{ currentUser.name }</h1>
+              <h2 className="text-sm md:text-base text-gray-500">@{ currentUser.username }</h2>
             </div>
 
-            <div className="flex gap-8 flex-wrap z-20">
+            <div className="flex gap-5 md:gap-8 flex-wrap z-20">
               <div className="flex flex-col">
                 <p className="body-bold text-primary-500">{ currentUser.posts.length }</p>
                 <p className="small-medium lg:base-medium text-light-2">Posts</p>
@@ -116,23 +133,30 @@ const Profile = () => {
 
         <div className="flex gap-2 w-full md:w-[25rem]">
           { currentUser.$id === user.id ? (
-            <Link to={ `/profile/${user.id}/edit` } className="flex-center gap-2 bg-dark-4 p-2 rounded-md w-1/2">
+            <Link
+              to={ `/profile/${user.id}/edit` }
+              className="flex-center gap-2 bg-dark-4 p-2 rounded-md w-1/2"
+            >
               <img src="/assets/icons/edit.svg" width={ 20 } height={ 20 } />
               <p className="small-medium">Edit profile</p>
             </Link>
           ) : (
-            <div className="flex gap-3 items-center">
-              <FollowButton followerId={ user.id } followingId={ currentUser.$id } />
+            <>
+              <FollowButton
+                followerId={ user.id }
+                followingId={ currentUser.$id }
+                className="w-1/3"
+              />
 
               <Button
                 asChild
-                className="bg-light-2 text-black"
+                className="bg-light-2 text-black w-1/3"
               >
                 <Link to={ `/profile/${id}/chat` }>
                   Message
                 </Link>
               </Button>
-            </div>
+            </>
           ) }
 
           <Button
@@ -146,7 +170,7 @@ const Profile = () => {
               height={ 22 }
               className="cursor-pointer"
             />
-            <p className="small-medium lg:base-medium">Share Profile</p>
+            <p className="small-medium lg:base-medium">Share</p>
           </Button>
         </div>
 

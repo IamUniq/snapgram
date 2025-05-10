@@ -38,7 +38,7 @@ export default function CreateStoryPage() {
     }
 
     return (
-        <div className="flex w-full">
+        <div className="flex-center flex-1 h-[53vh] w-full">
             <StoryProvider>
                 <div className="bg-black flex flex-col justify-between h-full w-full">
                     <StoryHeader

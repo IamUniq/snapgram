@@ -76,62 +76,62 @@ const PostForm = ({ post, action }: PostFormProps) => {
 
   }
   return (
-    <Form {...form}>
+    <Form { ...form }>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={ form.handleSubmit(onSubmit) }
         className="flex flex-col gap-9 w-full max-w-5xl"
       >
         <FormField
-          control={form.control}
+          control={ form.control }
           name="caption"
-          render={({ field }) => (
+          render={ ({ field }) => (
             <FormItem>
               <FormLabel className="shad-form_label">Caption</FormLabel>
               <FormControl>
                 <Textarea
                   className="shad-textarea custom-scrollbar"
-                  {...field}
+                  { ...field }
                 />
               </FormControl>
               <FormMessage className="shad-form_message" />
             </FormItem>
-          )}
+          ) }
         />
-        {action === "Create" && (
+        { action === "Create" && (
           <FormField
-            control={form.control}
+            control={ form.control }
             name="file"
-            render={({ field }) => (
+            render={ ({ field }) => (
               <FormItem>
                 <FormLabel className="shad-form_label">Add Photos</FormLabel>
                 <FormControl>
                   <FileUploader
-                    fieldChange={field.onChange}
-                    mediaUrls={post?.imageUrls || []}
+                    fieldChange={ field.onChange }
+                    mediaUrls={ post?.imageUrls || [] }
                   />
                 </FormControl>
                 <FormMessage className="shad-form_message" />
               </FormItem>
-            )}
+            ) }
           />
-        )}
+        ) }
         <FormField
-          control={form.control}
+          control={ form.control }
           name="location"
-          render={({ field }) => (
+          render={ ({ field }) => (
             <FormItem>
               <FormLabel className="shad-form_label">Add Location</FormLabel>
               <FormControl>
-                <Input type="text" className="shad-input" {...field} />
+                <Input type="text" className="shad-input" { ...field } />
               </FormControl>
               <FormMessage className="shad-form_message" />
             </FormItem>
-          )}
+          ) }
         />
         <FormField
-          control={form.control}
+          control={ form.control }
           name="tags"
-          render={({ field }) => (
+          render={ ({ field }) => (
             <FormItem>
               <FormLabel className="shad-form_label">
                 Add Tags (separated by comma " , ")
@@ -141,12 +141,12 @@ const PostForm = ({ post, action }: PostFormProps) => {
                   type="text"
                   className="shad-input"
                   placeholder="Nextjs, React, Angular"
-                  {...field}
+                  { ...field }
                 />
               </FormControl>
               <FormMessage className="shad-form_message" />
             </FormItem>
-          )}
+          ) }
         />
 
         <div className="flex gap-4 items-center justify-end">
@@ -156,14 +156,14 @@ const PostForm = ({ post, action }: PostFormProps) => {
 
           <Button
             type="submit"
-            disabled={isCreatingPost || isUpdatingPost}
+            disabled={ isCreatingPost || isUpdatingPost }
             className="shad-button_primary whitespace-nowrap"
           >
-            {isCreatingPost || isUpdatingPost ? (
+            { isCreatingPost || isUpdatingPost ? (
               <div className="flex-center gap-2">
                 <Loader /> Loading...
               </div>
-            ) : `${action} Post`}
+            ) : `${action} Post` }
           </Button>
         </div>
       </form>

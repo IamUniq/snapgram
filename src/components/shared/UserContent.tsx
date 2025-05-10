@@ -8,7 +8,7 @@ const UserContent = ({ data, loggedInUser, className }: { data: any[], loggedInU
             { data.map((user) => (
                 <div
                     key={ user.$id }
-                    className="w-48 h-48 2xl:w-40 2xl:h-40 bg-dark-2 rounded-3xl border border-dark-4 p-5 flex-center flex-col"
+                    className="w-48 h-48 2xl:w-40 2xl:h-40 bg-dark-2 rounded-3xl border border-dark-4 flex-center flex-col"
                 >
                     <img
                         src={ user.imageUrl || "/assets/icons/profile-placeholder.svg" }

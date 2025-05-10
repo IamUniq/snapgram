@@ -65,18 +65,22 @@ export const shareOptions = [
   {
     label: "Copy link",
     icon: Link,
+    action: 'copy'
   },
   {
     label: "Share",
     icon: Share2,
+    action: 'share'
   },
   {
     label: "Add To Story",
     icon: CircleFadingPlus,
+    action: 'story'
   },
   {
     label: "Download",
     icon: ArrowDownToLine,
+    action: 'download'
   },
 ];
 

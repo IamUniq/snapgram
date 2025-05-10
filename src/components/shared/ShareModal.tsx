@@ -19,13 +19,22 @@ interface ShareModalProps {
     setOpen: (value: boolean) => void
 }
 
+type ShareOptions = 'copy' | 'share' | 'story' | 'download'
+
 const ShareModal = ({ type, userId, contentId, open, setOpen }: ShareModalProps) => {
     const [searchValue, setSearchValue] = useState("")
 
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(`http://localhost:5173/${type}/${contentId}`)
+    const shareActions = (action: ShareOptions) => {
+        switch (action) {
+            case 'copy':
+                navigator.clipboard.writeText(`http://localhost:5173/${type}/${contentId}`)
 
-        toast.success("Copied")
+                toast.success("Copied")
+                break;
+
+            default:
+                break;
+        }
     }
 
     const { data: userFollowings, isPending: isGettingUserFollowings } = useGetUserFollowings(userId);
@@ -41,10 +50,18 @@ const ShareModal = ({ type, userId, contentId, open, setOpen }: ShareModalProps)
             <SheetContent
                 side="bottom"
                 aria-label="share post"
-                className={ cn("max-w-2xl overflow-y-scroll custom-scrollbar md:w-[70vw] bg-dark-2 rounded-t-xl mx-auto border-dark-4", searchResults && searchResults?.length > 4 ? "h-[70vh]" : 'h-[50vh] md:h-[40vh]') }
+                showCloseButton={ false }
+                className={ cn("w-full mx-auto md:w-[70vw] max-w-2xl bg-dark-2 rounded-t-xl border-dark-4 p-0",
+                    searchResults && 'h-[50vh]') }
             >
-                <SheetHeader className="!flex-center">
-                    <div className="flex gap-1 px-4 w-full rounded-lg bg-dark-4 max-w-[26rem] sm:max-w-[29rem]">
+                <SheetHeader className="flex-center p-4">
+                    <div className="flex px-4 w-full rounded-lg bg-dark-4 max-w-[26rem] sm:max-w-[29rem]">
+                        <img
+                            src="/assets/icons/search.svg"
+                            width={ 24 }
+                            height={ 24 }
+                            alt="search"
+                        />
                         <Input
                             type="text"
                             placeholder="Search"
@@ -52,17 +69,11 @@ const ShareModal = ({ type, userId, contentId, open, setOpen }: ShareModalProps)
                             value={ searchValue }
                             onChange={ (e) => setSearchValue(e.target.value) }
                         />
-                        <img
-                            src="/assets/icons/search.svg"
-                            width={ 24 }
-                            height={ 24 }
-                            alt="search"
-                        />
                     </div>
                 </SheetHeader>
 
                 {/* TODO: Implement the share functionality when the chat system is up and running */ }
-                <ul className="flex flex-wrap gap-6 w-full overflow-y-scroll custom-scrollbar mt-6">
+                <ul className="flex flex-wrap gap-6 w-full overflow-y-scroll custom-scrollbar mt-2 px-4">
                     { isGettingUserFollowings
                         ? <Loader />
                         : searchResults?.map(following => (
@@ -81,25 +92,23 @@ const ShareModal = ({ type, userId, contentId, open, setOpen }: ShareModalProps)
                     }
                 </ul>
 
-                <div className="w-full fixed bottom-3 flex !flex-row gap-2 overflow-x-scroll custom-scrollbar">
+                <div className="absolute bottom-0 left-0 w-full flex overflow-x-auto whitespace-nowrap gap-2 custom-scrollbar bg-dark-2 border-t border-light-4 rounded-t-xl p-2 touch-pan-y">
                     { shareOptions.map(option => (
                         <div
                             key={ option.label }
-                            className="flex-center flex-col gap-1 p-2 cursor-pointer w-[6.5rem] sm:w-28"
+                            className="inline-flex flex-col items-center gap-1 p-2 cursor-pointer min-w-[6.5rem] sm:min-w-28"
                         >
-                            <option.icon
-                                size={ 9 }
-                                className="w-10 h-10 p-2 bg-gray-400 text-black rounded-full"
-                                onClick={
-                                    option.label === "Copy link"
-                                        ? copyToClipboard
-                                        : () => { } }
-                            />
-
-                            <p className="text-[13px] font-medium text-light-2">{ option.label }</p>
+                            <div className="w-11 h-11 p-[10px] bg-gray-400 rounded-full">
+                                <option.icon
+                                    className="w-full h-full text-black"
+                                    onClick={ () => shareActions(option.action as ShareOptions) }
+                                />
+                            </div>
+                            <p className="text-[12px] md:text-sm font-medium text-light-2">{ option.label }</p>
                         </div>
                     )) }
                 </div>
+
             </SheetContent>
         </Sheet>
     )

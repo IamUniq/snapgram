@@ -17,7 +17,6 @@ const PostDetails = () => {
 
   const { data: relatedPosts, isPending: isGettingRelatedPosts } = useGetRelatedPosts(post?.$id || "", post?.tags)
 
-
   return (
     <div className="post_details-container">
       <div className="hidden md:flex max-w-5xl w-full">
@@ -45,7 +44,9 @@ const PostDetails = () => {
 
 
       { isGettingPost || !post
-        ? <Loader />
+        ? (
+          <div className="flex-center w-full h-[90vh]"><Loader /></div>
+        )
         : (
           <>
             <div className="post_details-card">
@@ -74,15 +75,12 @@ const PostDetails = () => {
                         <p className="base-medium lg:body-bold text-light-1">
                           { post.creator.name }
                         </p>
-                        <div className="flex-center gap-2 text-light-3">
-                          <p className="subtle-semibold lg:small-regular">
-                            { formatDate(post.$createdAt) }
-                          </p>
-                          -
-                          <p className="subtle-semibold lg:small-regular">
-                            { post.location }
-                          </p>
-                        </div>
+                        <p className="subtle-semibold lg:small-regular">
+                          { formatDate(post.$createdAt) }
+                        </p>
+                        <p className="subtle-semibold lg:small-regular">
+                          { post.location }
+                        </p>
                       </div>
                     </Link>
 
@@ -129,9 +127,16 @@ const PostDetails = () => {
               </h3>
 
               { isGettingRelatedPosts || !relatedPosts
-                ? <Loader />
-                : <GridPostList posts={ relatedPosts } />
-              }
+                ? (
+                  <div className="w-full h-[4rem] flex-center">
+                    <Loader />
+                  </div>
+                )
+                : relatedPosts.length > 0 ? (
+                  <GridPostList posts={ relatedPosts } />
+                ) : (
+                  <div className="text-sm font-medium">No related posts found</div>
+                ) }
             </div>
           </>
         ) }

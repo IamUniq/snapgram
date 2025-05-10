@@ -37,22 +37,27 @@ const DeleteModal = ({ imageId }: { imageId: string }) => {
     }
 
     return (
-        <AlertDialog open={modalToOpen?.type === 'DELETE'} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
+        <AlertDialog open={ modalToOpen?.type === 'DELETE' } onOpenChange={ onOpenChange }>
+            <AlertDialogContent className="bg-dark-4">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
+                    <AlertDialogDescription className="text-left">
                         This will permanently delete your post. This action cannot be undone.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                    {isDeletingPost
+                <AlertDialogFooter className="flex-row items-end justify-end space-x-2">
+                    { isDeletingPost
                         ? <Loader /> : (
                             <>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDeletePost}>Delete</AlertDialogAction>
+                                <AlertDialogAction
+                                    onClick={ handleDeletePost }
+                                    className="bg-red text-white mb-0"
+                                >
+                                    Delete
+                                </AlertDialogAction>
                             </>
-                        )}
+                        ) }
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

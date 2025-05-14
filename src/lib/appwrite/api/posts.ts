@@ -1,9 +1,48 @@
-import { ILikePost, INewPost, INewStory, IUpdatePost } from "@/types";
+import { ILikePost, INewComment, INewPost, INewStory, IUpdatePost } from "@/types";
 import { ID, Models, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
 import { createNotification } from "./users";
 import { getUserFollowers } from "./following";
 
+// FILE UPLOAD
+export async function uploadFile(file: File) {
+  try {
+    const uploadedFile = await storage.createFile(
+      appwriteConfig.storageId,
+      ID.unique(),
+      file
+    );
+
+    if (!uploadedFile) throw Error("Failed to upload file")
+    
+    return {data: uploadedFile.$id}
+  } catch (error:any) {
+    console.error(error);
+    return {error: error.message}
+  }
+}
+
+export function getFileView(fileId: string) {
+  try {
+    const fileUrl = storage.getFileView(appwriteConfig.storageId, fileId)
+
+    return {data: fileUrl}
+  } catch (error:any) {
+    return {error: error.message}
+  }
+}
+
+export async function deleteFile(fileId: string) {
+  try {
+    await storage.deleteFile(appwriteConfig.storageId, fileId);
+
+    return { status: "ok" };
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// POSTS
 export async function createPost(post: INewPost) {
   const fileUrls: string[] = [];
   try {
@@ -74,47 +113,6 @@ export async function createPost(post: INewPost) {
   }
 }
 
-export async function uploadFile(file: File) {
-  try {
-    const uploadedFile = await storage.createFile(
-      appwriteConfig.storageId,
-      ID.unique(),
-      file
-    );
-
-    if (!uploadedFile) throw Error("Failed to upload file")
-    
-    return {data: uploadedFile.$id}
-
-    // const fileUrl = `${appwriteConfig.url}/storage/buckets/${appwriteConfig.storageId}/files/${uploadedFile.$id}?project=${appwriteConfig.projectId}`
-
-    // return {fileId: uploadedFile.$id, fileUrl};
-  } catch (error:any) {
-    console.error(error);
-    return {error: error.message}
-  }
-}
-
-export function getFileView(fileId: string) {
-  try {
-    const fileUrl = storage.getFileView(appwriteConfig.storageId, fileId)
-
-    return {data: fileUrl}
-  } catch (error:any) {
-    return {error: error.message}
-  }
-}
-
-export async function deleteFile(fileId: string) {
-  try {
-    await storage.deleteFile(appwriteConfig.storageId, fileId);
-
-    return { status: "ok" };
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export async function getRecentPosts() {
   try {
     const posts = await databases.listDocuments(
@@ -131,7 +129,10 @@ export async function getRecentPosts() {
      const postComments = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.commentsCollectionId,
-      [Query.equal("post", post.$id), Query.select(["$id"])]
+       [
+         Query.equal("post", post.$id),
+         Query.select(['$id']),
+       ]
       )
       
       postsWithComments.push({
@@ -355,34 +356,222 @@ export async function searchPosts(searchTerm: string) {
   }
 }
 
-export async function createStory(post: INewStory) {
+// COMMENTS
+export async function createComment(data: INewComment, postCreatorId: string) {
   try {
-    const file = await uploadFile(post.media)
-    if (!file.data) throw Error("Error uploading file");
+    const newComment = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      ID.unique(),
+      {
+        commenter: data.commenterId,
+        post: data.contentId,
+        quote: data.quote,
+      }
+    );
+
+    if (!newComment) throw Error;
+
+    if (data.commenterId !== postCreatorId) {
+      await createNotification({
+        type: "comment",
+        targetId: postCreatorId,
+        userId: data.commenterId,
+        postId: data.contentId,
+      })
+    }
+
+    return newComment;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function getComments(postId: string) {
+  try {
+    const comments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      [
+        Query.equal("post", postId),
+      ]
+    );
+
+    if (!comments) throw Error;
+
+    const commentsWithReplies:Models.Document[] = []
+
+    for (const comment of comments.documents) {
+      const replies = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.repliesCollectionId,
+        [Query.equal("comment", comment.$id), Query.select(['$id'])]
+      )
+
+      commentsWithReplies.push({
+        ...comment,
+        replies: replies.total
+      })
+    }
+
+    return commentsWithReplies;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function likeComment(commentId: string, likes: string[]) {
+  try {
+    const updatedComment = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      commentId,
+      {
+        likes: likes,
+      }
+    );
+
+    if (!updatedComment) throw Error;
+
+    return updatedComment;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function deleteComment(commentId: string) {
+  try {
+    const commentToDelete = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      commentId
+    );
+
+    if (!commentToDelete) throw Error;
+
+    return { success: true };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function createReply(data: INewComment, commentCreatorId: string) {
+  try {
+    const replyCreated = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.repliesCollectionId,
+      ID.unique(),
+      {
+        quote: data.quote,
+        commenter: data.commenterId,
+        comment: data.contentId
+      }
+    )
+
+    if (!replyCreated) throw Error("Failed to create reply")
+    
+    if (data.commenterId !== commentCreatorId) {
+      await createNotification({
+        type: "reply",
+        targetId: commentCreatorId,
+        userId: data.commenterId,
+        postId: data.contentId,
+      })
+    }
+    
+    return replyCreated
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export async function getReplies(commentId: string) {
+  try {
+    const replies = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.repliesCollectionId,
+      [
+        Query.equal("comment", commentId),
+        // Query.select([
+        //   "$id",
+        //   "quote",
+        //   "likes",
+        //   "$createdAt",
+        //   "commenter.$id",
+        //   "commenter.name",
+        //   "commenter.imageUrl",
+        // ]),
+      ]
+    );
+
+    if (!replies) throw Error;
+
+    return replies;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function likeReply(replyId: string, likes: string[]) {
+  try {
+    const updatedReply = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.repliesCollectionId,
+      replyId,
+      {
+        likes: likes,
+      }
+    );
+
+    if (!updatedReply) throw Error;
+
+    return updatedReply;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// STORY
+export async function createStory(post: INewStory) {
+  const isText = !(!post.text || post.text === '');
+  try {
+    let mediaUrl = ''
+    let mediaId = ''
+
+    if (!isText) {
+      const file = await uploadFile(post.media!)
+      if (!file.data) throw Error("Error uploading file");
+      mediaId = file.data
 
     const fileUrl = getFileView(file.data);
-
+    
     if (!fileUrl.data) {
       deleteFile(file.data);
       throw Error;
+      }
+      
+      mediaUrl = fileUrl.data
     }
-
-    const mediaType = post.media.type.split("/")[0]
 
     const newStory = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.storiesCollectionId,
       ID.unique(),
       {
-        mediaUrl: fileUrl.data,
-        mediaId: file.data,
         user: post.userId,
-        mediaType
+        ...(!isText ? {
+          mediaUrl,
+          mediaId,
+
+        } : {
+          mediaText: post.text
+        }),
+        mediaType: post.media ? post.media.type.split("/")[0] : "text",
       }
     );
 
     if (!newStory) {
-      await deleteFile(file.data);
+      await deleteFile(mediaId);
       throw Error;
     }
 
@@ -391,7 +580,8 @@ export async function createStory(post: INewStory) {
       createdAt: newStory.$createdAt,
       mediaUrl: newStory.mediaUrl,
       userId: newStory.user.$id,
-     mediaType
+      mediaType: newStory.mediaType,
+     text: newStory.mediaText
     }
 
      const userFollowers = await getUserFollowers(post.userId);
@@ -424,7 +614,7 @@ export async function getUserStories(userId: string) {
       [
         Query.equal("user", userId),
         Query.greaterThanEqual("$createdAt", time24HoursAgo),
-        Query.select(["$id", "mediaId", "mediaUrl", "views", "mediaType"]),
+        Query.select(["$id", "mediaId", "user.username", "user.imageUrl", "mediaText", "mediaUrl", "views", "mediaType"]),
         Query.orderDesc("$createdAt")
       ]
     );
@@ -432,6 +622,25 @@ export async function getUserStories(userId: string) {
     if (!userStories) throw Error;
 
     return userStories;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function viewStory(storyId: string, views: string[]) {
+  try {
+    const updatedStory = await databases.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.storiesCollectionId,
+      storyId,
+      {
+        views: views,
+      }
+    );
+
+    if (!updatedStory) throw Error;
+
+    return {id: updatedStory.$id};
   } catch (error) {
     console.log(error);
   }

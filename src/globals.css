@@ -141,7 +141,7 @@
 
   /* Home */
   .home-container {
-    @apply flex flex-col flex-1 items-center gap-10 overflow-scroll py-10 px-5 md:px-8 lg:p-14 custom-scrollbar;
+    @apply flex flex-col flex-1 gap-10 overflow-scroll px-5 py-2 md:px-8 lg:p-14 custom-scrollbar;
   }
 
   .home-posts {
@@ -149,7 +149,7 @@
   }
 
   .home-creators {
-    @apply hidden xl:flex flex-col w-72 2xl:w-465 px-6 py-10 gap-10  overflow-scroll custom-scrollbar;
+    @apply hidden xl:flex fixed right-0 border-l-light-3 h-svh flex-col w-72 2xl:w-465 px-6 py-10 gap-10 overflow-scroll custom-scrollbar;
   }
 
   /* Post Details */
@@ -158,11 +158,11 @@
   }
 
   .post_details-card {
-    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex-col flex xl:flex-row border xl:h-[19.8rem] border-dark-4 xl:rounded-l-[24px];
+    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex flex-col xl:flex-row border h-[40rem] xl:h-[23.8rem] border-dark-4 xl:rounded-l-[24px] overflow-hidden;
   }
 
   .post_details-img {
-    @apply h-80 w-full lg:h-[98.5%] rounded-t-[30px] xl:rounded-l-[24px] xl:rounded-tr-none object-cover p-5 bg-dark-1;
+    @apply object-contain w-full h-[20rem] xl:h-[23.8rem] rounded-t-[30px] xl:rounded-l-[24px] p-5 bg-dark-1;
   }
 
   .post_details-info {
@@ -194,7 +194,7 @@
 
   /* Bottom bar */
   .bottom-bar {
-    @apply z-50 flex-between w-full sticky bottom-0 rounded-t-[20px] bg-dark-2 px-5 py-4 md:hidden;
+    @apply z-50 flex-between w-full fixed bottom-0 rounded-t-[20px] bg-dark-2 px-5 py-4 md:hidden;
   }
 
   /* File uploader */

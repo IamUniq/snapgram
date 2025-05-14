@@ -7,9 +7,10 @@ import {
 } from "@/lib/react-query/queriesAndMutations";
 import { checkIsLiked, cn } from "@/lib/utils";
 import { Models } from "appwrite";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Loader from "./Loader";
-import ShareModal from "./ShareModal";
+
+const ShareModal = React.lazy(() => import('./ShareModal'))
 
 type PostStatsProps = {
   post: Models.Document;

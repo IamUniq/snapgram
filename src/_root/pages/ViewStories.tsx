@@ -1,14 +1,17 @@
 import { Loader } from "@/components/shared"
 import StoryPlayer from "@/components/story/StoryPlayer"
 import { Button } from "@/components/ui/button"
-import { useGetUserStories } from "@/lib/react-query/queriesAndMutations"
+import { useUserContext } from "@/context/AuthContext"
+import { useGetUserStories, useViewStory } from "@/lib/react-query/queriesAndMutations"
 import { useNavigate, useParams } from "react-router-dom"
 
 const ViewStories = () => {
+    const { user } = useUserContext()
     const { id } = useParams()
     const navigate = useNavigate()
 
     const { data: stories, isPending: isGettingStories } = useGetUserStories(id || "")
+    const { mutate: viewStory } = useViewStory()
 
     if (!stories || stories?.total === 0) {
         return (
@@ -22,26 +25,51 @@ const ViewStories = () => {
             </div>)
     }
 
+
     const medias = stories.documents.map(story => {
         return {
+            id: story.$id,
             url: story.mediaUrl,
-            type: story.mediaType
-        } as { url: string; type: "video" | 'text' | 'image' }
+            textContent: JSON.parse(story.mediaText),
+            type: story.mediaType,
+            views: story.views,
+            createdAt: story.$createdAt,
+            userId: id,
+            username: story.user.username,
+            userImage: story.user.imageUrl
+        }
     })
 
-    return (
-        <div className="relative w-full flex-center h-[88vh] md:h-full">
-            <div className="absolute top-7 left-6 flex items-center gap-1 text-sm cursor-pointer z-20" onClick={ () => navigate(-1) }>
-                <img src="/assets/icons/back.svg" width={ 20 } height={ 20 } />
-                <span>Go Back</span>
-            </div>
+    const initialIndex = medias.findIndex((media) => !media.views.includes(user.id));
+    const startIndex = initialIndex === -1 ? 0 : initialIndex;
 
+
+    const handleViewStory = (storyId: string, views: string[]) => {
+        let newViews = [...views];
+
+        const hasViewed = newViews.includes(user.id);
+
+        if (hasViewed) {
+            return;
+        } else {
+            newViews.push(user.id);
+            viewStory({ storyId, viewsArray: newViews })
+        }
+    }
+
+    return (
+        <div className="relative w-full h-[74vh] md:h-[90vh]">
             { isGettingStories ? (
                 <div className="w-full h-full">
                     <Loader />
                 </div>
             ) : (
-                <StoryPlayer medias={ medias } />
+                <StoryPlayer
+                    medias={ medias }
+                    userId={ user.id }
+                    onView={ handleViewStory }
+                    initialIndex={ startIndex }
+                />
             ) }
         </div>
     )

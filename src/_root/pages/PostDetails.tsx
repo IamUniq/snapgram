@@ -1,11 +1,15 @@
-import { multiFormatDateString as formatDate } from "@/lib/utils";
+import React from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { multiFormatDateString as formatDate } from "@/lib/utils";
+import { useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
 
-import { Button } from "@/components/ui/button";
-import { GridPostList, ImageView, Loader, CommentsModal, DeleteModal, PostStats } from "@/components/shared";
 import { useUserContext } from "@/context/AuthContext";
 import { useModalContext } from "@/context/ModalContext";
-import { useGetPostById, useGetRelatedPosts } from "@/lib/react-query/queriesAndMutations";
+import { Button } from "@/components/ui/button";
+import { GridPostList, ImageView, Loader, PostStats } from "@/components/shared";
+
+const CommentsModal = React.lazy(() => import('@/components/shared/CommentsModal'))
+const DeleteModal = React.lazy(() => import('@/components/shared/DeleteModal'))
 
 const PostDetails = () => {
   const navigate = useNavigate()

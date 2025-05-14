@@ -1,18 +1,30 @@
-import { Repeat2 } from "lucide-react";
+import { MoreVertical, Repeat2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
+import { multiFormatDateString as formatDate } from "@/lib/utils";
 
 interface StoryPlayerProps {
     medias: {
+        id: string;
         url: string;
+        textContent: any;
         type: "video" | "text" | "image";
-    }[]
+        views: string[];
+        createdAt: string;
+        userId?: string;
+        username: string;
+        userImage?: string;
+    }[];
+    userId: string;
+    onView: (storyId: string, views: string[]) => void
+    initialIndex: number;
 }
 
 const DISPLAY_DURATION = 5000;
 
-const StoryPlayer = ({ medias }: StoryPlayerProps) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
+const StoryPlayer = ({ medias, userId, onView, initialIndex }: StoryPlayerProps) => {
+    const [currentIndex, setCurrentIndex] = useState(initialIndex);
     const [progress, setProgress] = useState(0);
     const [showOverlay, setShowOverlay] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -21,41 +33,41 @@ const StoryPlayer = ({ medias }: StoryPlayerProps) => {
     const current = medias[currentIndex]
 
     useEffect(() => {
-        if (current.type !== 'video') return;
+        if (userId !== current.userId && !current.views.includes(userId)) {
+            onView(current.id, current.views);
+        }
 
-        const video = videoRef.current;
-        if (!video) return;
+        if (current.type === 'video') {
+            const video = videoRef.current;
+            if (!video) return;
 
-        const updateProgress = () => {
-            if (video.duration) {
-                const percent = (video.currentTime / video.duration) * 100;
-                setProgress(percent);
-            }
-        };
+            const updateProgress = () => {
+                if (video.duration) {
+                    const percent = (video.currentTime / video.duration) * 100;
+                    setProgress(percent);
+                }
+            };
 
-        video.addEventListener("timeupdate", updateProgress);
-        return () => video.removeEventListener("timeupdate", updateProgress);
-    }, [currentIndex]);
+            video.addEventListener("timeupdate", updateProgress);
+            return () => video.removeEventListener("timeupdate", updateProgress);
+        } else {
+            timerRef.current = setTimeout(() => {
+                handleNext();
+            }, DISPLAY_DURATION);
 
-    useEffect(() => {
-        if (current.type === "video") return;
+            const step = DISPLAY_DURATION / 100;
+            let p = 0;
 
-        timerRef.current = setTimeout(() => {
-            handleNext();
-        }, DISPLAY_DURATION);
+            const progressInterval = setInterval(() => {
+                p += 1;
+                setProgress(p);
+            }, step);
 
-        const step = DISPLAY_DURATION / 100;
-        let p = 0;
-
-        const progressInterval = setInterval(() => {
-            p += 1;
-            setProgress(p);
-        }, step);
-
-        return () => {
-            clearTimeout(timerRef.current!);
-            clearInterval(progressInterval);
-        };
+            return () => {
+                clearTimeout(timerRef.current!);
+                clearInterval(progressInterval);
+            };
+        }
     }, [currentIndex]);
 
     const handleNext = () => {
@@ -77,30 +89,52 @@ const StoryPlayer = ({ medias }: StoryPlayerProps) => {
     };
 
     return (
-        <div className="relative flex-center h-full m-auto">
+        <div className="relative flex items-start justify-center w-full h-full mt-2 md:mt-10">
             {/* PROGRESS BARS */ }
-            <div className="absolute top-10 flex-center gap-2 w-full">
-                { medias.map((_, index) => {
-                    const isActive = index === currentIndex;
-                    const isViewed = index < currentIndex;
+            <div className="absolute top-0 flex flex-col gap-3 w-full max-w-md mx-auto z-10">
+                <div>
+                    { medias.map((_, index) => {
+                        const isActive = index === currentIndex;
+                        const isViewed = index < currentIndex;
 
-                    return (
-                        <div key={ index } className="h-1 rounded flex-1 bg-white/20 overflow-hidden">
-                            <div
-                                className="h-full bg-light-3 transition-all duration-300"
-                                style={ {
-                                    width: isViewed ? "100%" : isActive ? `${progress}%` : "0%",
-                                } }
+                        return (
+                            <div key={ index } className="h-1 rounded flex-1 bg-white/20 overflow-hidden">
+                                <div
+                                    className="h-full bg-light-3 transition-all duration-300"
+                                    style={ {
+                                        width: isViewed ? "100%" : isActive ? `${progress}%` : "0%",
+                                    } }
+                                />
+                            </div>
+                        )
+                    }) }
+                </div>
+
+                <div className="flex items-center justify-between w-full px-3">
+                    <div className="flex items-center gap-1">
+                        <Link to={ `/profile/${current.userId}` }>
+                            <img
+                                src={ current.userImage || "/assets/icons/profile-placeholder.svg" }
+                                className="w-9 h-9 rounded-full"
                             />
-                        </div>
-                    )
-                }) }
+                        </Link>
+
+                        <h3 className="text-base text-light-2">
+                            { current.username }
+
+                            <span className="mx-2">-</span>
+
+                            <span className="text-xs">{ formatDate(current.createdAt) }</span>
+                        </h3>
+                    </div>
+
+                    <MoreVertical />
+                </div>
             </div>
 
-            <div className="relative flex-center w-full h-[60%] md:h-[80%] overflow-hidden bg-dark-4 max-w-md mx-auto">
+            <div className="relative flex-center w-full h-full overflow-hidden bg-dark-4 max-w-md mx-auto">
                 { current.type === "video" && (
                     <video
-
                         ref={ videoRef }
                         src={ current.url }
                         controls={ false }
@@ -120,8 +154,8 @@ const StoryPlayer = ({ medias }: StoryPlayerProps) => {
                 ) }
 
                 { current.type === "text" && (
-                    <div className="p-6 text-center text-xl font-medium leading-relaxed">
-                        { current.url }
+                    <div className="flex-center w-full h-full px-4 whitespace-pre-line border border-light-1/55" style={ { ...current.textContent.style } }>
+                        { current.textContent.content || "Hello There" }
                     </div>
                 ) }
 

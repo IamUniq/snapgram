@@ -161,7 +161,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
           >
             { isCreatingPost || isUpdatingPost ? (
               <div className="flex-center gap-2">
-                <Loader /> Loading...
+                <Loader /> Posting...
               </div>
             ) : `${action} Post` }
           </Button>

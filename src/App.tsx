@@ -22,6 +22,7 @@ import {
 } from "./_root/pages";
 import EditProfile from "./_root/pages/EditProfile";
 import { Toaster } from "./components/ui/sonner";
+import { StoryProvider } from "./context/StoryContext";
 
 const App = () => {
   return (
@@ -49,7 +50,11 @@ const App = () => {
           <Route path="/profile/:id/settings" element={ <Settings /> } />
           <Route path="/profile/:id/story" element={ <ViewStories /> } />
           {/* Story */ }
-          <Route path="/create-story" element={ <CreateStory /> } />
+          <Route path="/create-story" element={
+            <StoryProvider>
+              <CreateStory />
+            </StoryProvider>
+          } />
           {/* Chat */ }
           <Route path="/profile/:id/chat" element={ <EditProfile /> } />
         </Route>

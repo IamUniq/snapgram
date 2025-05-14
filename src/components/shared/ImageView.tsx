@@ -7,7 +7,13 @@ import {
 import { cn } from "@/lib/utils"
 import { useEffect, useState } from "react"
 
-const ImageView = ({ images, containerClassname, className }: { images: string[], containerClassname?: string, className?: string }) => {
+type ImageViewProps = {
+    images: string[],
+    containerClassname?: string,
+    className?: string
+}
+
+const ImageView = ({ images, containerClassname, className }: ImageViewProps) => {
     const [api, setApi] = useState<CarouselApi>()
     const [current, setCurrent] = useState(0)
     const [count, setCount] = useState(0)
@@ -30,34 +36,34 @@ const ImageView = ({ images, containerClassname, className }: { images: string[]
     }
 
     return (
-        <Carousel setApi={setApi} className={cn("", containerClassname)}>
+        <Carousel setApi={ setApi } className={ cn("", containerClassname) }>
             <CarouselContent>
-                {images.map((url, index) => (
-                    <CarouselItem key={index}>
+                { images.map((url, index) => (
+                    <CarouselItem key={ index }>
                         <img
-                            src={url || "/assets/icons/profile-placeholder.svg"}
-                            className={cn("", className)}
+                            src={ url || "/assets/icons/profile-placeholder.svg" }
+                            className={ cn("", className) }
                         />
                     </CarouselItem>
-                ))}
+                )) }
 
             </CarouselContent>
-            {count > 1 && (
-                <div className="absolute bottom-7 right-1/2 -translate-x-1/2 flex gap-2 justify-center z-10">
-                    {Array.from({ length: count }).map((_, index) => (
+            { count > 1 && (
+                <div className="absolute bottom-2 right-1/2 -translate-x-1/2 flex gap-2 justify-center z-10">
+                    { Array.from({ length: count }).map((_, index) => (
                         <button
-                            key={index}
-                            className={cn(
-                                "w-2.5 h-2.5 bg-white rounded-full transition-all", {
-                                "bg-primary-500 scale-125": current === (index + 1)
+                            key={ index }
+                            className={ cn(
+                                "w-2.5 h-2.5 bg-primary-500/70 border rounded-full transition-all", {
+                                "bg-primary-600 scale-125": current === (index + 1)
                             }
-                            )}
-                            onClick={() => goToSlide(index)}
-                            aria-label={`Go to slide ${index + 1}`}
+                            ) }
+                            onClick={ () => goToSlide(index) }
+                            aria-label={ `Go to slide ${index + 1}` }
                         />
-                    ))}
+                    )) }
                 </div>
-            )}
+            ) }
         </Carousel>
     )
 }

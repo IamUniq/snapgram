@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 type CustomData = {
     id: string;
     imageUrl: string;
-    username: string;
+    username?: string;
+    highlight?: string;
 }[]
 
 const HighlightStories = ({ type }: { type: 'highlight' | 'story' }) => {
@@ -17,7 +18,9 @@ const HighlightStories = ({ type }: { type: 'highlight' | 'story' }) => {
 
         if (!userFollowings) return;
 
-        const userWithStories = userFollowings.documents.filter((following) => following.stories && following.stories === 0)
+        const userWithStories = userFollowings.documents.filter(
+            (following) => typeof following.stories === 'number' && following.stories >= 1
+        );
 
         const followings = userWithStories.map(user => ({
             id: user.$id,
@@ -31,20 +34,22 @@ const HighlightStories = ({ type }: { type: 'highlight' | 'story' }) => {
     if (data.length === 0) return;
 
     return (
-        <div className="flex gap-6">
+        <div className="flex items-start justify-start gap-6">
             { data.map((user) => (
-                <Link to={ `/profile/${id}/story` }
+                <Link to={ `/profile/${user.id}/story` }
                     key={ user.id }
                     className="flex-center flex-col gap-2"
                 >
                     <div className="w-16 h-16 outline outline-dark-4 rounded-full cursor-pointer overflow-hidden">
                         <img
                             src={ user.imageUrl || "/assets/icons/profile-placeholder.svg" }
-                            className="w-full h-full object-cover rounded-full"
+                            className="w-full h-full object-cover rounded-full border-2 border-primary-500"
                         />
 
                     </div>
-                    <p className="text-light-2 small-medium">{ user.username }</p>
+                    <p className="text-light-2 small-medium">
+                        { user.username || user.highlight }
+                    </p>
                 </Link>
             )) }
         </div>

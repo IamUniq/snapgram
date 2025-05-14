@@ -42,17 +42,15 @@ import {
   savePost,
   searchPosts,
   updatePost,
-} from "../appwrite/api/posts";
-
-import {
   createComment,
   createReply,
   deleteComment,
   getComments,
   getReplies,
   likeComment,
-  likeReply
-} from "../appwrite/api/comments";
+  likeReply,
+  viewStory
+} from "../appwrite/api/posts";
 
 import {
   followUser,
@@ -464,5 +462,24 @@ export const useGetUserStories = (userId: string) => {
     queryKey: [QUERY_KEYS.GET_USER_STORIES],
     queryFn: () => getUserStories(userId),
     enabled: !!userId,
+  });
+};
+
+export const useViewStory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      storyId,
+      viewsArray,
+    }: {
+      storyId: string;
+      viewsArray: string[];
+    }) => viewStory(storyId, viewsArray),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_STORIES, data?.id],
+      });
+    },
   });
 };

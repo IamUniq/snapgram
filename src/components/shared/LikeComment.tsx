@@ -25,7 +25,7 @@ const LikeComment = ({ userId, commentId, postLikes }: LikeCommentProps) => {
         }
 
         setLikes(newLikes)
-        likeComment({ commentId: commentId, likesArray: newLikes });
+        likeComment({ contentId: commentId, likesArray: newLikes });
     }
     return (
         <div className="flex items-center place-items-start">
@@ -36,13 +36,13 @@ const LikeComment = ({ userId, commentId, postLikes }: LikeCommentProps) => {
                         : "/assets/icons/like.svg"
                 }
                 alt="like"
-                width={20}
-                height={20}
-                onClick={handleLikeComment}
+                width={ 20 }
+                height={ 20 }
+                onClick={ handleLikeComment }
                 className="cursor-pointer"
             />
             <p className="small-medium lg:base-medium ml-1">
-                {likes.length}
+                { likes.length }
             </p>
         </div>
     )

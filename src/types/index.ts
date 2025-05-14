@@ -97,6 +97,7 @@ export type INotification = {
 }
 
 export type INewStory = {
-  media: File
+  media?: File;
+  text?: string;
   userId: string;
 };

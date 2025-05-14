@@ -1,11 +1,13 @@
 import { useUserContext } from "@/context/AuthContext";
+import { useModalContext } from "@/context/ModalContext";
 import { multiFormatDateString as formatDate } from "@/lib/utils";
 import { Models } from "appwrite";
+import React from 'react';
 import { Link } from "react-router-dom";
-import CommentsModal from "./CommentsModal";
 import ImageView from "./ImageView";
 import PostStats from "./PostStats";
-import { useModalContext } from "@/context/ModalContext";
+
+const CommentsModal = React.lazy(() => import('./CommentsModal'))
 
 type PostCardProps = {
   post: Models.Document;

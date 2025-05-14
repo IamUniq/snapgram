@@ -6,11 +6,11 @@ import Topbar from "@/components/shared/Topbar";
 
 const RootLayout = () => {
   return (
-    <div className="w-full md:flex">
+    <div className="relative w-full md:flex">
       <Topbar />
       <LeftSidebar />
 
-      <section className="flex flex-1 h-full md:ml-64">
+      <section className="flex flex-1 md:ml-64">
         <Outlet />
       </section>
 

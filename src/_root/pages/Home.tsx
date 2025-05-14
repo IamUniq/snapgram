@@ -17,11 +17,11 @@ const Home = () => {
   const { data: users, isPending: isFetchingUsers, isError: isFetchingFailed } = useGetUsers(10);
 
   return (
-    <div className="flex h-full">
-      <div className="home-container">
+    <div className="flex h-full w-full">
+      <div className="home-container mt-7">
         <HighlightStories type="story" />
 
-        <div className="home-posts">
+        <div className="home-posts mb-24">
           <h2 className="h3-bold md:h2-bold text-left w-full">Home Feed</h2>
 
           { !posts || posts?.length === 0 || isPostLoading ?

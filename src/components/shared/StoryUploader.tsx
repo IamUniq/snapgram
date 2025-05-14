@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 
 type FileUploaderProps = {
     onMediaSelect: (mediaUrl: string, media: File) => void;
-    setMediaType: React.Dispatch<React.SetStateAction<string>>
+    setMediaType: React.Dispatch<React.SetStateAction<"" | "text" | "video" | "image">>
 };
 
 const StoryUploader = ({ setMediaType, onMediaSelect }: FileUploaderProps) => {
@@ -12,14 +12,16 @@ const StoryUploader = ({ setMediaType, onMediaSelect }: FileUploaderProps) => {
         const file = e.target.files?.[0]
         if (file) {
             const url = URL.createObjectURL(file)
-            setMediaType(file.type)
+            const fileType = file.type.split("/")[0] as "video" | "image"
+
+            setMediaType(fileType)
             onMediaSelect(url, file)
         }
     }
 
     return (
         <div
-            className="flex-center flex-col bg-dark-3 rounded-xl p-1"
+            className="flex-center flex-col bg-dark-3 rounded-xl p-1 w-60 h-60"
         >
             <input
                 type="file"

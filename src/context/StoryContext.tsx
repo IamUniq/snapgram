@@ -1,62 +1,46 @@
 import { createContext, useContext, useState, type ReactNode } from "react"
 
-type StoryElement = {
-    id: string
-    type: "text" | "drawing"
+export type StoryText = {
     content: string
-    position: { x: number; y: number }
-    style?: Record<string, any>
+    style: {
+        color: string;
+        fontSize: number;
+        lineHeight: number;
+        fontWeight: string;
+        fontStyle: string;
+        textAlign: string;
+        backgroundColor: string
+    }
 }
 
 interface StoryContextType {
-    elements: StoryElement[]
-    activeToolId: string | null
-    backgroundColor: string
-    addElement: (element: Omit<StoryElement, "id">) => void
-    removeElement: (id: string) => void
-    updateElement: (id: string, updates: Partial<StoryElement>) => void
-    setActiveTool: (toolId: string | null) => void
-    setBackgroundColor: (color: string) => void
+    text: StoryText;
+    setText: React.Dispatch<React.SetStateAction<StoryText>>;
+}
+
+const INIT_STATE: StoryText = {
+    content: "",
+    style: {
+        color: "#000000",
+        fontSize: 16,
+        lineHeight: 1,
+        fontWeight: "normal",
+        fontStyle: "normal",
+        textAlign: "center",
+        backgroundColor: "#FFFFFF"
+    }
 }
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined)
 
 export function StoryProvider({ children }: { children: ReactNode }) {
-    const [elements, setElements] = useState<StoryElement[]>([])
-    const [activeToolId, setActiveToolId] = useState<string | null>(null)
-    const [backgroundColor, setBackgroundColor] = useState<string>("#000000")
-
-    const addElement = (element: Omit<StoryElement, "id">) => {
-        const newElement = {
-            ...element,
-            id: `element-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-        }
-        setElements([...elements, newElement])
-    }
-
-    const removeElement = (id: string) => {
-        setElements(elements.filter((element) => element.id !== id))
-    }
-
-    const updateElement = (id: string, updates: Partial<StoryElement>) => {
-        setElements(elements.map((element) => (element.id === id ? { ...element, ...updates } : element)))
-    }
-
-    const setActiveTool = (toolId: string | null) => {
-        setActiveToolId(toolId)
-    }
+    const [text, setText] = useState(INIT_STATE)
 
     return (
         <StoryContext.Provider
             value={ {
-                elements,
-                activeToolId,
-                backgroundColor,
-                addElement,
-                removeElement,
-                updateElement,
-                setActiveTool,
-                setBackgroundColor,
+                text,
+                setText,
             } }
         >
             { children }

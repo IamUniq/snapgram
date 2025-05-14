@@ -1,16 +1,18 @@
+import { Play } from "lucide-react";
+import React, { useState } from "react";
 import { Link, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById, useGetUserFollowers, useGetUserFollowings, useGetUserStories } from "@/lib/react-query/queriesAndMutations";
+import { useGetUserById, useGetUserFollowers, useGetUserFollowings } from "@/lib/react-query/queriesAndMutations";
 
-import { LikedPosts } from "@/_root/pages";
-import { FollowButton, GridPostList, HighlightStories, Loader, ShareModal } from "@/components/shared";
-import UserContent from "@/components/shared/UserContent";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FollowButton, GridPostList, Loader } from "@/components/shared";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { Play } from "lucide-react";
+
+const ShareModal = React.lazy(() => import('@/components/shared/ShareModal'))
+const LikedPosts = React.lazy(() => import('@/_root/pages/LikedPosts'))
+const UserContent = React.lazy(() => import('@/components/shared/UserContent'))
 
 const Profile = () => {
   const { user } = useUserContext();
@@ -21,18 +23,17 @@ const Profile = () => {
   const [shareModalIsOpen, setShareModalIsOpen] = useState(false)
 
   const { data: currentUser, isPending: isGettingUser } = useGetUserById(id || "")
-  const { data: userStories, isPending: isGettingUserStories } = useGetUserStories(id || "")
   const { data: userFollowers } = useGetUserFollowers(id || "")
   const { data: userFollowings } = useGetUserFollowings(id || "")
 
-  const hasStory = userStories && userStories?.total > 0
-
-  if (!currentUser || isGettingUser || isGettingUserStories)
+  if (!currentUser || isGettingUser)
     return (
       <div className="flex-center w-full h-[90vh]">
         <Loader />
       </div>
     );
+
+  const hasStory = currentUser?.stories > 0
 
   return (
     <div className="relative profile-container">
@@ -174,7 +175,8 @@ const Profile = () => {
           </Button>
         </div>
 
-        <HighlightStories type="highlight" />
+        {/* TODO: Create Highlights for each page */ }
+        {/* <HighlightStories type="highlight" /> */ }
       </div>
 
       <div className="flex max-w-5xl w-full">
@@ -212,7 +214,7 @@ const Profile = () => {
       <Routes>
         <Route
           index
-          element={ <GridPostList posts={ currentUser.posts } showStats={ false } showUser={ false } />
+          element={ <GridPostList posts={ currentUser.posts } showStats={ true } showUser={ false } />
           }
         />
         { user.id === id && <Route path="/liked-posts" element={ <LikedPosts /> } /> }

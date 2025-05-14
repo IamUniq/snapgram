@@ -153,19 +153,21 @@ export async function getUsers(limit?: number) {
 
 export async function getUserById(userId: string) {
   try {
-    const user = await databases.getDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.usersCollectionId,
-      userId
-    );
+    const [user, stories] = await Promise.all([
+      databases.getDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.usersCollectionId,
+        userId
+      ),
+
+      getUserStories(userId)]
+    )
 
     if (!user) throw Error;
-
-    const userStories = await getUserStories(user.$id)
     
     const data:Models.Document = {
       ...user,
-      stories: userStories?.total || 0
+      stories: stories?.total
     }
 
     return data;

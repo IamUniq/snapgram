@@ -2,9 +2,10 @@ import { useLikeComment, useLikeReply } from "@/lib/react-query/queriesAndMutati
 import { checkIsLiked, cn, multiFormatDateString as formatDate } from "@/lib/utils"
 import { Models } from "appwrite"
 import { UndoDot } from "lucide-react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { Link } from "react-router-dom"
-import ReplyModal from "./ReplyModal"
+
+const ReplyModal = React.lazy(() => import('./ReplyModal'))
 
 const CommentLine = (
     { userId, comment, type }:

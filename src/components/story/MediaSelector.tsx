@@ -1,16 +1,17 @@
 import type React from "react"
 
 import { Button } from "@/components/ui/button"
-import { Camera } from "lucide-react"
+import { Camera, Type } from "lucide-react"
 import { useRef, useState } from "react"
 import StoryUploader from "../shared/StoryUploader"
 
 interface MediaSelectorProps {
+    onTextSelect: () => void
     onMediaSelect: (mediaUrl: string, media: File) => void
-    setMediaType: React.Dispatch<React.SetStateAction<string>>
+    setMediaType: React.Dispatch<React.SetStateAction<"" | "text" | "video" | "image">>
 }
 
-export default function MediaSelector({ onMediaSelect, setMediaType }: MediaSelectorProps) {
+export default function MediaSelector({ onTextSelect, onMediaSelect, setMediaType }: MediaSelectorProps) {
     const [isCapturing, setIsCapturing] = useState(false)
     const videoRef = useRef<HTMLVideoElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -32,19 +33,19 @@ export default function MediaSelector({ onMediaSelect, setMediaType }: MediaSele
         }
     }
 
-    const stopCamera = () => {
-        setIsCapturing(false);
+    // const stopCamera = () => {
+    //     setIsCapturing(false);
 
-        if (videoRef.current && videoRef.current.srcObject) {
-            const stream = videoRef.current.srcObject as MediaStream;
+    //     if (videoRef.current && videoRef.current.srcObject) {
+    //         const stream = videoRef.current.srcObject as MediaStream;
 
-            stream.getTracks().forEach((track) => {
-                track.stop();
-            });
+    //         stream.getTracks().forEach((track) => {
+    //             track.stop();
+    //         });
 
-            videoRef.current.srcObject = null;
-        }
-    }
+    //         videoRef.current.srcObject = null;
+    //     }
+    // }
 
     const capturePhoto = () => {
         if (videoRef.current && canvasRef.current) {
@@ -68,7 +69,7 @@ export default function MediaSelector({ onMediaSelect, setMediaType }: MediaSele
     }
 
     return (
-        <div className="flex-center w-full p-4">
+        <div className="relative flex-center w-full p-4 h-[95vh] overflow-y-auto custom-scrollbar">
             <div className="flex-center h-full gap-5">
                 { isCapturing ? (
                     <div className="relative w-full aspect-[12/16] bg-black rounded-lg overflow-hidden">
@@ -83,20 +84,24 @@ export default function MediaSelector({ onMediaSelect, setMediaType }: MediaSele
                         </Button>
                     </div>
                 ) : (
-                    <>
+                    <div className="flex flex-col lg:flex-row gap-4 w-full h-[40rem] lg:h-[15rem] mt-80 lg:mt-0 overflow-y-auto custom-scrollbar">
                         <div
                             onClick={ startCamera }
-                            className="flex-center flex-col bg-dark-3 rounded-xl p-4 cursor-pointer"
-                        >
-                            <div className="file_uploader-box">
-                                <Camera size={ 58 } className="text-[#877eff]/40" />
+                            className="file_uploader-box bg-dark-3 w-60 h-60 rounded-xl cursor-pointer">
+                            <Camera size={ 58 } className="text-[#877eff]/40" />
 
-                                Camera
-                            </div>
+                            Camera
                         </div>
 
                         <StoryUploader onMediaSelect={ onMediaSelect } setMediaType={ setMediaType } />
-                    </>
+
+                        <div
+                            onClick={ onTextSelect }
+                            className="file_uploader-box w-60 h-60 bg-dark-3 rounded-xl cursor-pointer">
+                            <Type size={ 58 } className="text-[#877eff]/40" />
+                            Text
+                        </div>
+                    </div>
                 ) }
             </div>
         </div>

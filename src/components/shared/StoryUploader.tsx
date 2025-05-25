@@ -21,24 +21,24 @@ const StoryUploader = ({ setMediaType, onMediaSelect }: FileUploaderProps) => {
 
     return (
         <div
-            className="flex-center flex-col bg-dark-3 rounded-xl p-1 w-60 h-60"
+            className="flex-center flex-col bg-dark-3 rounded-xl p-1 w-40 h-40 lg:w-60 lg:h-60"
         >
             <input
                 type="file"
-                ref={ fileInputRef }
-                onChange={ handleFileChange }
+                ref={fileInputRef}
+                onChange={handleFileChange}
                 accept="image/*,video/*"
                 className="hidden"
             />
-            <div onClick={ () => fileInputRef.current?.click() } className="file_uploader-box cursor-pointer">
+            <div onClick={() => fileInputRef.current?.click()} className="file_uploader-box cursor-pointer">
                 <img
                     src="/assets/icons/file-upload.svg"
-                    width={ 96 }
-                    height={ 77 }
+                    width={96}
+                    height={77}
                     alt="file-upload"
                 />
 
-                <p>
+                <p className="text-center">
                     Upload From Device
                 </p>
             </div>

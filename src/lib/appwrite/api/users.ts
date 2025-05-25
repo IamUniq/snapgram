@@ -1,7 +1,8 @@
 import { INewUser, INotification, IUpdateAccount, IUpdateUser } from "@/types";
 import { ID, Models, Query } from "appwrite";
 import { account, appwriteConfig, avatars, databases } from "../config";
-import { deleteFile, getFileView, getUserStories, uploadFile } from "./posts";
+import { deleteFile, getFileView, uploadFile } from "./posts";
+import { getUserStories } from "./story";
 
 export async function createUserAccount(user: INewUser) {
   try {
@@ -32,7 +33,7 @@ export async function createUserAccount(user: INewUser) {
 }
 
 export async function updateUserAccount(user: IUpdateAccount) {
-  const {email, password, newPassword, name} = user
+  const { email, password, newPassword, name } = user;
   try {
     if (email && password) {
       const updateEmail = await account.updateEmail(email, password);
@@ -43,21 +44,26 @@ export async function updateUserAccount(user: IUpdateAccount) {
       const updateName = await account.updateName(name);
       if (!updateName) throw Error;
     }
-    
+
     if (newPassword && password) {
-      const updatePassword = await account.updatePassword(newPassword, password)
+      const updatePassword = await account.updatePassword(
+        newPassword,
+        password
+      );
       if (!updatePassword) throw Error;
     }
 
-    return {success: true};
+    return { success: true };
   } catch (error: any) {
     return {
       success: false,
-      error: `${error.code === 409
-        ? "Email already exists. Please use another" 
-        : error.code === 401 
-        ? "Password Incorrect. Please try again"
-        : error.message} `
+      error: `${
+        error.code === 409
+          ? "Email already exists. Please use another"
+          : error.code === 401
+          ? "Password Incorrect. Please try again"
+          : error.message
+      } `,
     };
   }
 }
@@ -90,9 +96,9 @@ export async function signInAccount(user: { email: string; password: string }) {
       user.password
     );
 
-    return {session};
+    return { session };
   } catch (error: any) {
-    return {error: error.code}
+    return { error: error.code };
   }
 }
 
@@ -160,15 +166,15 @@ export async function getUserById(userId: string) {
         userId
       ),
 
-      getUserStories(userId)]
-    )
+      getUserStories(userId),
+    ]);
 
     if (!user) throw Error;
-    
-    const data:Models.Document = {
+
+    const data: Models.Document = {
       ...user,
-      stories: stories?.total
-    }
+      stories: stories?.total,
+    };
 
     return data;
   } catch (error) {
@@ -178,8 +184,8 @@ export async function getUserById(userId: string) {
 
 export async function updateUser(user: IUpdateUser) {
   const hasFileToUpdate = user.file.length > 0;
-  const accountToBeUpdated = user.email || user.name || user.newPassword
-  
+  const accountToBeUpdated = user.email || user.name || user.newPassword;
+
   try {
     let image = {
       imageUrl: user.imageUrl,
@@ -190,10 +196,10 @@ export async function updateUser(user: IUpdateUser) {
       const uploadedFile = await uploadFile(user.file[0]);
 
       if (!uploadedFile.data) throw Error;
-      
+
       if (user.imageId !== null) deleteFile(user.imageId);
-      
-      const fileUrl = getFileView(uploadedFile.data)
+
+      const fileUrl = getFileView(uploadedFile.data);
       if (!fileUrl.data) throw Error;
 
       image = { ...image, imageUrl: fileUrl.data, imageId: uploadedFile.data };
@@ -204,10 +210,11 @@ export async function updateUser(user: IUpdateUser) {
         email: user.email,
         password: user.password,
         name: user.name,
-        newPassword: user.newPassword
-      })
-      
-      if (!updateAccount.success) return { success: false, error: updateAccount.error }
+        newPassword: user.newPassword,
+      });
+
+      if (!updateAccount.success)
+        return { success: false, error: updateAccount.error };
     }
 
     const updatedUser = await databases.updateDocument(
@@ -228,31 +235,36 @@ export async function updateUser(user: IUpdateUser) {
       throw Error;
     }
 
-    return { success: true, data: updatedUser};
+    return { success: true, data: updatedUser };
   } catch (error: any) {
-    return { success: false, error: error.message};
+    return { success: false, error: error.message };
   }
 }
 
-export async function createNotification({type, targetId, userId, postId}: INotification) {
+export async function createNotification({
+  type,
+  targetId,
+  userId,
+  postId,
+}: INotification) {
   try {
-      const notification = await databases.createDocument(
+    const notification = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.notificationsCollectionId,
       ID.unique(),
       {
         type,
         targetId,
-        post: postId, 
+        post: postId,
         user: userId,
       }
-    )
+    );
 
-    if (!notification) throw Error
-    
-    return notification
+    if (!notification) throw Error;
+
+    return notification;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
@@ -261,10 +273,7 @@ export async function getNotifications(userId: string) {
     const notifications = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.notificationsCollectionId,
-      [
-        Query.equal("targetId", userId),
-        Query.orderDesc('$createdAt')
-      ]
+      [Query.equal("targetId", userId), Query.orderDesc("$createdAt")]
     );
 
     if (!notifications) throw Error;
@@ -284,13 +293,13 @@ export async function updateNotifications(notificationIds: string[]) {
           appwriteConfig.notificationsCollectionId,
           notificationId,
           {
-            read: true
+            read: true,
           }
         );
 
-        if(!updatedNotification) throw Error
+        if (!updatedNotification) throw Error;
 
-        return {success: true}
+        return { success: true };
       })
     );
   } catch (error) {

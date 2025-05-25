@@ -18,6 +18,8 @@ export enum QUERY_KEYS {
   GET_USER_POSTS = "getUserPosts",
   GET_FILE_PREVIEW = "getFilePreview",
   GET_USER_STORIES = "getUserStories",
+  GET_USER_HIGHLIGHTS = "getUserHighlights",
+  GET_USER_HIGHLIGHTS_BY_TITLE = "getUserHighlightsByTitle",
 
   // NOTIFICATION KEYS
   GET_NOTIFICATIONS = "getNotifications",
@@ -27,5 +29,5 @@ export enum QUERY_KEYS {
 
   // COMMENT KEYS
   GET_COMMENTS = "getComments",
-  GET_COMMENT_REPLIES = "getCommentReplies"
+  GET_COMMENT_REPLIES = "getCommentReplies",
 }

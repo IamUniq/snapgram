@@ -2,7 +2,7 @@ import { IFollowUser } from "@/types";
 import { ID, Query } from "appwrite";
 import { appwriteConfig, databases } from "../config";
 import { createNotification } from "./users";
-import { getUserStories } from "./posts";
+import { getUserStories } from "./story";
 
 export async function isFollowingUser(data: IFollowUser) {
   try {
@@ -44,10 +44,10 @@ export async function followUser(data: IFollowUser) {
     if (!followingUser) throw Error;
 
     await createNotification({
-      type: 'follow',
+      type: "follow",
       targetId: data.followingId,
-      userId: data.followerId
-    })
+      userId: data.followerId,
+    });
 
     return {
       success: true,
@@ -112,7 +112,7 @@ export async function getUserFollowers(userId: string) {
         ]
       );
 
-      const userStories = await getUserStories(userId.documents[0].$id)
+      const userStories = await getUserStories(userId.documents[0].$id);
 
       const data = {
         $id: userId.documents[0].$id,
@@ -120,7 +120,7 @@ export async function getUserFollowers(userId: string) {
         username: user.followerId.username,
         imageUrl: user.followerId.imageUrl,
         recordId: user.$id,
-        stories: userStories?.total 
+        stories: userStories?.total,
       };
 
       users.push(data);
@@ -169,15 +169,15 @@ export async function getUserFollowings(userId: string) {
         ]
       );
 
-      const userStories = await getUserStories(userId.documents[0].$id)
-      
+      const userStories = await getUserStories(userId.documents[0].$id);
+
       const data = {
         $id: userId.documents[0].$id,
         name: user.followingId.name,
         username: user.followingId.username,
         imageUrl: user.followingId.imageUrl,
         recordId: user.$id,
-        stories: userStories?.total
+        stories: userStories?.total,
       };
 
       users.push(data);

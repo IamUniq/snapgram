@@ -29,7 +29,6 @@ import {
 
 import {
   createPost,
-  createStory,
   deletePost,
   deleteSavedPost,
   getInfinitePosts,
@@ -37,7 +36,6 @@ import {
   getRecentPosts,
   getRelatedPosts,
   getUserPosts,
-  getUserStories,
   likePost,
   savePost,
   searchPosts,
@@ -49,8 +47,16 @@ import {
   getReplies,
   likeComment,
   likeReply,
-  viewStory
 } from "../appwrite/api/posts";
+
+import {
+  createStory,
+  getUserStories,
+  viewStory,
+  highlightStory,
+  getUserHighlights,
+  getUserHighlightByTitle,
+} from "../appwrite/api/story";
 
 import {
   followUser,
@@ -102,12 +108,8 @@ export const useLikePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      postId,
-      targetId,
-      userId,
-      likesArray,
-    }: ILikePost) => likePost({postId, targetId, userId, likesArray}),
+    mutationFn: ({ postId, targetId, userId, likesArray }: ILikePost) =>
+      likePost({ postId, targetId, userId, likesArray }),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.$id],
@@ -129,8 +131,15 @@ export const useSavePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ postId, userId, targetId }: { postId: string; userId: string, targetId: string }) =>
-      savePost({postId, userId, targetId}),
+    mutationFn: ({
+      postId,
+      userId,
+      targetId,
+    }: {
+      postId: string;
+      userId: string;
+      targetId: string;
+    }) => savePost({ postId, userId, targetId }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
@@ -265,14 +274,14 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: (user: IUpdateUser) => updateUser(user),
-    onSuccess: (user) =>{
+    onSuccess: (user) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_CURRENT_USER, user.data?.$id],
       }),
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, user.data?.$id],
-      })
-    }
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.GET_USER_BY_ID, user.data?.$id],
+        });
+    },
   });
 };
 
@@ -280,7 +289,13 @@ export const useCreateComment = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ data, creatorId }: { data: INewComment;  creatorId: string}) => createComment(data, creatorId),
+    mutationFn: ({
+      data,
+      creatorId,
+    }: {
+      data: INewComment;
+      creatorId: string;
+    }) => createComment(data, creatorId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_COMMENTS, data?.post.$id],
@@ -335,11 +350,17 @@ export const useCreateReply = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ data, creatorId }: { data: INewComment; creatorId: string }) => createReply(data, creatorId),
+    mutationFn: ({
+      data,
+      creatorId,
+    }: {
+      data: INewComment;
+      creatorId: string;
+    }) => createReply(data, creatorId),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_COMMENT_REPLIES, data?.comment.$id],
-      })
+      });
     },
   });
 };
@@ -433,33 +454,33 @@ export const useGetNotifications = (userId: string) => {
     queryFn: () => getNotifications(userId),
     enabled: !!userId,
   });
-}
+};
 
 export const useUpdateNotifications = (notificationIds: string[]) => {
   return useMutation({
     mutationFn: () => updateNotifications(notificationIds),
   });
-}
+};
 
 export const useCreateStory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (post: INewStory) => createStory(post),
-    onSuccess: (data) =>{
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_USER_FOLLOWERS, data?.userId],
       }),
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.userId],
-      })
-    }
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.userId],
+        });
+    },
   });
 };
 
 export const useGetUserStories = (userId: string) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GET_USER_STORIES],
+    queryKey: [QUERY_KEYS.GET_USER_STORIES, userId],
     queryFn: () => getUserStories(userId),
     enabled: !!userId,
   });
@@ -481,5 +502,49 @@ export const useViewStory = () => {
         queryKey: [QUERY_KEYS.GET_USER_STORIES, data?.id],
       });
     },
+  });
+};
+
+export const useHighlightStory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      storyId,
+      userId,
+      title,
+      mediaId,
+      mediaUrl,
+      mediaType,
+    }: {
+      storyId: string;
+      userId: string;
+      title: string;
+      mediaId: string;
+      mediaUrl: string;
+      mediaType: "video" | "image";
+    }) =>
+      highlightStory({ storyId, userId, title, mediaId, mediaUrl, mediaType }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_USER_STORIES, data?.userId],
+      });
+    },
+  });
+};
+
+export const useGetUserHighlights = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_HIGHLIGHTS, userId],
+    queryFn: () => getUserHighlights(userId),
+    enabled: !!userId,
+  });
+};
+
+export const useGetUserHighlightsByTitle = (userId: string, title: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_HIGHLIGHTS_BY_TITLE, userId],
+    queryFn: () => getUserHighlightByTitle(userId, title),
+    enabled: !!userId,
   });
 };

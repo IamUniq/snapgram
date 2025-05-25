@@ -1,8 +1,8 @@
-import { ILikePost, INewComment, INewPost, INewStory, IUpdatePost } from "@/types";
+import { ILikePost, INewComment, INewPost, IUpdatePost } from "@/types";
 import { ID, Models, Query } from "appwrite";
 import { appwriteConfig, databases, storage } from "../config";
-import { createNotification } from "./users";
 import { getUserFollowers } from "./following";
+import { createNotification } from "./users";
 
 // FILE UPLOAD
 export async function uploadFile(file: File) {
@@ -13,22 +13,32 @@ export async function uploadFile(file: File) {
       file
     );
 
-    if (!uploadedFile) throw Error("Failed to upload file")
-    
-    return {data: uploadedFile.$id}
-  } catch (error:any) {
+    if (!uploadedFile) throw Error("Failed to upload file");
+
+    return { data: uploadedFile.$id };
+  } catch (error: any) {
     console.error(error);
-    return {error: error.message}
+    return { error: error.message };
   }
 }
 
 export function getFileView(fileId: string) {
   try {
-    const fileUrl = storage.getFileView(appwriteConfig.storageId, fileId)
+    const fileUrl = storage.getFileView(appwriteConfig.storageId, fileId);
 
-    return {data: fileUrl}
-  } catch (error:any) {
-    return {error: error.message}
+    return { data: fileUrl };
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+export function getFileDownload(fileId: string) {
+  try {
+    const fileUrl = storage.getFileDownload(appwriteConfig.storageId, fileId);
+
+    return { data: fileUrl };
+  } catch (error: any) {
+    return { error: error.message };
   }
 }
 
@@ -123,22 +133,19 @@ export async function getRecentPosts() {
 
     if (!posts) throw Error;
 
-    const postsWithComments = []
+    const postsWithComments = [];
 
     for (const post of posts.documents) {
-     const postComments = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.commentsCollectionId,
-       [
-         Query.equal("post", post.$id),
-         Query.select(['$id']),
-       ]
-      )
-      
+      const postComments = await databases.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.commentsCollectionId,
+        [Query.equal("post", post.$id), Query.select(["$id"])]
+      );
+
       postsWithComments.push({
         ...post,
-        comments: postComments.total
-      })
+        comments: postComments.total,
+      });
     }
 
     return postsWithComments;
@@ -147,7 +154,12 @@ export async function getRecentPosts() {
   }
 }
 
-export async function likePost({postId, targetId, userId, likesArray}: ILikePost) {
+export async function likePost({
+  postId,
+  targetId,
+  userId,
+  likesArray,
+}: ILikePost) {
   try {
     const updatedPost = await databases.updateDocument(
       appwriteConfig.databaseId,
@@ -160,13 +172,13 @@ export async function likePost({postId, targetId, userId, likesArray}: ILikePost
 
     if (!updatedPost) throw Error;
 
-    if (targetId && userId && (targetId !== userId)) {
+    if (targetId && userId && targetId !== userId) {
       await createNotification({
-        type: 'like',
+        type: "like",
         targetId,
         userId,
-        postId
-      }) 
+        postId,
+      });
     }
 
     return updatedPost;
@@ -175,7 +187,13 @@ export async function likePost({postId, targetId, userId, likesArray}: ILikePost
   }
 }
 
-export async function savePost({postId, userId, targetId}: {[key: string]: string}) {
+export async function savePost({
+  postId,
+  userId,
+  targetId,
+}: {
+  [key: string]: string;
+}) {
   try {
     const updatedPost = await databases.createDocument(
       appwriteConfig.databaseId,
@@ -190,11 +208,11 @@ export async function savePost({postId, userId, targetId}: {[key: string]: strin
     if (!updatedPost) throw Error;
 
     await createNotification({
-      type: 'save',
+      type: "save",
       targetId,
       userId,
-      postId
-    })
+      postId,
+    });
 
     return updatedPost;
   } catch (error) {
@@ -230,14 +248,14 @@ export async function getPostById(postId: string) {
       appwriteConfig.databaseId,
       appwriteConfig.commentsCollectionId,
       [Query.equal("post", post.$id), Query.select(["$id"])]
-    )
+    );
 
-    const data:Models.Document = {
+    const data: Models.Document = {
       ...post,
       comments: postComments.total,
-    }
+    };
 
-    return data
+    return data;
   } catch (error) {
     console.log(error);
   }
@@ -378,7 +396,7 @@ export async function createComment(data: INewComment, postCreatorId: string) {
         targetId: postCreatorId,
         userId: data.commenterId,
         postId: data.contentId,
-      })
+      });
     }
 
     return newComment;
@@ -392,26 +410,24 @@ export async function getComments(postId: string) {
     const comments = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.commentsCollectionId,
-      [
-        Query.equal("post", postId),
-      ]
+      [Query.equal("post", postId)]
     );
 
     if (!comments) throw Error;
 
-    const commentsWithReplies:Models.Document[] = []
+    const commentsWithReplies: Models.Document[] = [];
 
     for (const comment of comments.documents) {
       const replies = await databases.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.repliesCollectionId,
-        [Query.equal("comment", comment.$id), Query.select(['$id'])]
-      )
+        [Query.equal("comment", comment.$id), Query.select(["$id"])]
+      );
 
       commentsWithReplies.push({
         ...comment,
-        replies: replies.total
-      })
+        replies: replies.total,
+      });
     }
 
     return commentsWithReplies;
@@ -464,24 +480,24 @@ export async function createReply(data: INewComment, commentCreatorId: string) {
       {
         quote: data.quote,
         commenter: data.commenterId,
-        comment: data.contentId
+        comment: data.contentId,
       }
-    )
+    );
 
-    if (!replyCreated) throw Error("Failed to create reply")
-    
+    if (!replyCreated) throw Error("Failed to create reply");
+
     if (data.commenterId !== commentCreatorId) {
       await createNotification({
         type: "reply",
         targetId: commentCreatorId,
         userId: data.commenterId,
         postId: data.contentId,
-      })
+      });
     }
-    
-    return replyCreated
+
+    return replyCreated;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
 
@@ -526,121 +542,6 @@ export async function likeReply(replyId: string, likes: string[]) {
     if (!updatedReply) throw Error;
 
     return updatedReply;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-// STORY
-export async function createStory(post: INewStory) {
-  const isText = !(!post.text || post.text === '');
-  try {
-    let mediaUrl = ''
-    let mediaId = ''
-
-    if (!isText) {
-      const file = await uploadFile(post.media!)
-      if (!file.data) throw Error("Error uploading file");
-      mediaId = file.data
-
-    const fileUrl = getFileView(file.data);
-    
-    if (!fileUrl.data) {
-      deleteFile(file.data);
-      throw Error;
-      }
-      
-      mediaUrl = fileUrl.data
-    }
-
-    const newStory = await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.storiesCollectionId,
-      ID.unique(),
-      {
-        user: post.userId,
-        ...(!isText ? {
-          mediaUrl,
-          mediaId,
-
-        } : {
-          mediaText: post.text
-        }),
-        mediaType: post.media ? post.media.type.split("/")[0] : "text",
-      }
-    );
-
-    if (!newStory) {
-      await deleteFile(mediaId);
-      throw Error;
-    }
-
-    const data = {
-      $id: newStory.$id,
-      createdAt: newStory.$createdAt,
-      mediaUrl: newStory.mediaUrl,
-      userId: newStory.user.$id,
-      mediaType: newStory.mediaType,
-     text: newStory.mediaText
-    }
-
-     const userFollowers = await getUserFollowers(post.userId);
-
-    if (!userFollowers) return data;
-
-    for (const follower of userFollowers?.documents) {
-      await createNotification({
-        type: "newStory",
-        targetId: follower.$id,
-        userId: post.userId,
-        postId: newStory.$id,
-      });
-    }
-
-    return data;
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-export async function getUserStories(userId: string) {
-  try {
-    const now = new Date()
-    const time24HoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-
-    const userStories = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.storiesCollectionId,
-      [
-        Query.equal("user", userId),
-        Query.greaterThanEqual("$createdAt", time24HoursAgo),
-        Query.select(["$id", "mediaId", "user.username", "user.imageUrl", "mediaText", "mediaUrl", "views", "mediaType"]),
-        Query.orderDesc("$createdAt")
-      ]
-    );
-
-    if (!userStories) throw Error;
-
-    return userStories;
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function viewStory(storyId: string, views: string[]) {
-  try {
-    const updatedStory = await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.storiesCollectionId,
-      storyId,
-      {
-        views: views,
-      }
-    );
-
-    if (!updatedStory) throw Error;
-
-    return {id: updatedStory.$id};
   } catch (error) {
     console.log(error);
   }

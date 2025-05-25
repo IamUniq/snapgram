@@ -19,12 +19,12 @@ const Home = () => {
   return (
     <div className="flex h-full w-full">
       <div className="home-container mt-7">
-        <HighlightStories type="story" />
+        <HighlightStories type="story" userId={user.id} />
 
         <div className="home-posts mb-24">
           <h2 className="h3-bold md:h2-bold text-left w-full">Home Feed</h2>
 
-          { !posts || posts?.length === 0 || isPostLoading ?
+          {!posts || posts?.length === 0 || isPostLoading ?
             (
               <Skeleton className="post-card h-64">
                 <div className="flex items-center gap-4">
@@ -34,31 +34,31 @@ const Home = () => {
               </Skeleton>
             ) : (
               <ul className="flex flex-col flex-1 gap-9 w-full">
-                { posts.map((post: Models.Document, index: number) => (
+                {posts.map((post: Models.Document, index: number) => (
                   <PostCard
-                    key={ `post${index}-${post.$id}` }
-                    post={ post }
+                    key={`post${index}-${post.$id}`}
+                    post={post}
                   />
-                )) }
+                ))}
               </ul>
-            ) }
+            )}
         </div>
       </div>
 
       <div className="home-creators">
         <h2 className="h3-bold md:h2-bold text-left w-full">Top Creators</h2>
 
-        { isFetchingUsers
+        {isFetchingUsers
           ? <Loader />
           : isFetchingFailed
             ? <p className="text-light-4">Network Error</p>
             : (
               <UserContent
-                loggedInUser={ user.id }
-                data={ users?.documents! }
+                loggedInUser={user.id}
+                data={users?.documents!}
                 className="justify-center"
               />
-            ) }
+            )}
 
       </div>
     </div>

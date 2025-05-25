@@ -1,6 +1,16 @@
-import { Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 
 const AuthLayout = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const cookieFallback = localStorage.getItem("cookieFallback");
+    if (typeof cookieFallback === "string" && cookieFallback !== "[]" && cookieFallback !== null && cookieFallback !== undefined) {
+      navigate(-1);
+    }
+
+  }, []);
 
   return (
     <>

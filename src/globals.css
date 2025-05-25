@@ -154,7 +154,7 @@
 
   /* Post Details */
   .post_details-container {
-    @apply flex flex-col flex-1 gap-10 overflow-scroll py-10 px-5 md:p-14 custom-scrollbar items-center;
+    @apply flex flex-col flex-1 gap-6 pt-10 pb-24 px-5 md:p-14 items-center;
   }
 
   .post_details-card {

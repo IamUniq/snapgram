@@ -14,14 +14,16 @@ const Home = () => {
   } = useGetRecentPosts();
 
   const { user } = useUserContext()
-  const { data: users, isPending: isFetchingUsers, isError: isFetchingFailed } = useGetUsers(10);
+  const { data: users, isPending: isFetchingUsers, isError: isFetchingFailed } = useGetUsers(2);
 
   return (
-    <div className="flex h-full w-full">
-      <div className="home-container mt-7">
-        <HighlightStories type="story" userId={user.id} />
+    <div className="flex min-h-screen w-full">
+      <div className="home-container">
+        <div className="mt-7 md:mt-0">
+          <HighlightStories type="story" userId={user.id} />
+        </div>
 
-        <div className="home-posts mb-24">
+        <div className="home-posts pb-28 lg:pb-0">
           <h2 className="h3-bold md:h2-bold text-left w-full">Home Feed</h2>
 
           {!posts || posts?.length === 0 || isPostLoading ?
@@ -45,7 +47,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="home-creators">
+      <div className="home-creators px-6">
         <h2 className="h3-bold md:h2-bold text-left w-full">Top Creators</h2>
 
         {isFetchingUsers

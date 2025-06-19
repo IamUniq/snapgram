@@ -56,7 +56,7 @@ const ShareModal = ({ type, userId, contentId, open, setOpen }: ShareModalProps)
                 aria-label="share post"
                 showCloseButton={false}
                 className={cn("w-full mx-auto md:w-[70vw] max-w-2xl bg-dark-2 rounded-t-xl border-dark-4 p-0",
-                    searchResults && 'h-[50vh]')}
+                    searchResults && 'h-[60vh]')}
             >
                 <SheetHeader className="flex-center p-4">
                     <div className="flex px-4 w-full rounded-lg bg-dark-4 max-w-[26rem] sm:max-w-[29rem]">
@@ -91,7 +91,7 @@ const ShareModal = ({ type, userId, contentId, open, setOpen }: ShareModalProps)
                                     width={48}
                                     height={48}
                                     alt="user avatar"
-                                    className="w-10 h-10 rounded-full"
+                                    className="w-14 h-14 rounded-full"
                                 />
 
                                 <p className="text-sm">{following.username}</p>

@@ -29,12 +29,7 @@ const ViewStories = () => {
     if (!stories || stories?.total === 0) {
         return (
             <div className="w-full h-[90vh] flex-center flex-col gap-4">
-                <h1 className="text-xl font-semibold">User has not shared any story</h1>
-                <Button
-                    className="bg-primary-500 text-black"
-                    onClick={() => navigate(-1)}>
-                    Go Back
-                </Button>
+                <Loader />
             </div>)
     }
 

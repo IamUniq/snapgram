@@ -1,4 +1,5 @@
-import { useGetUserFollowings, useGetUserHighlights } from "@/lib/react-query/queriesAndMutations";
+import { useGetUserFollowings, useGetUserHighlights, useGetUserStories } from "@/lib/react-query/queriesAndMutations";
+import { Plus, User2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface HighlightStoriesProps {
@@ -15,9 +16,11 @@ type CustomData = {
 
 const HighlightStories = ({ type, userId }: HighlightStoriesProps) => {
     const data: CustomData = []
+    let userHasStory = false
 
     switch (type) {
         case 'story':
+            const { data: userStories } = useGetUserStories(userId)
             const { data: userFollowings } = useGetUserFollowings(userId || "")
             if (!userFollowings) return;
 
@@ -32,6 +35,9 @@ const HighlightStories = ({ type, userId }: HighlightStoriesProps) => {
             }))
 
             data.push(...followings)
+            if (userStories && userStories.total > 0) {
+                userHasStory = true
+            }
             break;
 
         case 'highlight':
@@ -51,10 +57,21 @@ const HighlightStories = ({ type, userId }: HighlightStoriesProps) => {
             break;
     }
 
-    if (data.length === 0) return;
-
     return (
-        <div className="flex items-start justify-start gap-6">
+        <div className="flex-start gap-6 md:gap-10">
+            {type === 'story' && userHasStory && (
+                <Link
+                    to={`/profile/${userId}/story`}
+                    className="relative cursor-pointer overflow-hidden flex flex-col gap-2 items-center"
+                >
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-purple-500 via-yellow-200 to-violet-500"></div>
+
+                    <p className="text-light-2 small-medium">
+                        Your story
+                    </p>
+                </Link>
+            )}
+
             {data.map((item) => (
                 <Link to={type === 'story'
                     ? `/profile/${userId}/story`
@@ -80,6 +97,20 @@ const HighlightStories = ({ type, userId }: HighlightStoriesProps) => {
                     </p>
                 </Link>
             ))}
+
+            {type === 'story' && (
+                <Link to="/create-story"
+                    className="relative cursor-pointer overflow-hidden flex flex-col gap-2 items-center"
+                >
+                    <User2 className="w-16 h-16 border-2 border-gray-700 rounded-full p-2" />
+                    <div className="bg-black absolute bottom-6 right-1">
+                        <Plus className="w-6 h-6 border-2 border-gray-700 rounded-full" />
+                    </div>
+                    <p className="text-light-2 small-medium">
+                        Add story
+                    </p>
+                </Link>
+            )}
         </div>
     )
 }

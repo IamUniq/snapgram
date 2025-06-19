@@ -1,26 +1,19 @@
 import { Loader } from "@/components/shared"
 import StoryPlayer from "@/components/story/StoryPlayer"
-import { Button } from "@/components/ui/button"
 import { useUserContext } from "@/context/AuthContext"
 import { useGetUserHighlightsByTitle } from "@/lib/react-query/queriesAndMutations"
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
 const ViewHighlights = () => {
     const { user } = useUserContext()
     const { id, title } = useParams()
-    const navigate = useNavigate()
 
     const { data, isLoading: isGettingHighlights } = useGetUserHighlightsByTitle(id || "", title || "")
 
     if (!id || !title || !data || data.length === 0) {
         return (
             <div className="w-full h-[90vh] flex-center flex-col gap-4">
-                <h1 className="text-xl font-semibold">Resource Not Found</h1>
-                <Button
-                    className="bg-primary-500 text-black"
-                    onClick={() => navigate(-1)}>
-                    Go Back
-                </Button>
+                <Loader />
             </div>
         )
     }

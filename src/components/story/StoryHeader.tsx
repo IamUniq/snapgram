@@ -10,7 +10,7 @@ interface StoryHeaderProps {
 
 export default function StoryHeader({ isPending, onClose, onPost }: StoryHeaderProps) {
     return (
-        <div className="absolute top-3 flex items-center justify-between z-10 w-full">
+        <div className="flex items-center justify-between w-full">
             <Button variant="ghost" size="icon" className="text-white mx-4 items-center" onClick={onClose}>
                 <img src="/assets/icons/back.svg" width={25} height={25} />
                 <span>Back</span>

@@ -7,7 +7,7 @@ import {
 } from "@/lib/react-query/queriesAndMutations";
 import { checkIsLiked, cn } from "@/lib/utils";
 import { Models } from "appwrite";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Loader from "./Loader";
 
 const ShareModal = React.lazy(() => import('./ShareModal'))
@@ -85,14 +85,16 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
 
   return (
     <div className="flex justify-between items-center z-20">
-      { shareModalIsOpen &&
-        <ShareModal
-          type="posts"
-          userId={ userId }
-          contentId=""
-          open={ shareModalIsOpen }
-          setOpen={ setShareModalIsOpen }
-        />
+      {shareModalIsOpen &&
+        <Suspense fallback={<Loader />}>
+          <ShareModal
+            type="posts"
+            userId={userId}
+            contentId=""
+            open={shareModalIsOpen}
+            setOpen={setShareModalIsOpen}
+          />
+        </Suspense>
       }
       <div className="flex gap-3">
         <div className="flex-center gap-2">
@@ -103,56 +105,56 @@ const PostStats = ({ post, userId, comments, showComments = true }: PostStatsPro
                 : "/assets/icons/like.svg"
             }
             alt="like"
-            width={ 20 }
-            height={ 20 }
-            onClick={ handleLikePost }
+            width={20}
+            height={20}
+            onClick={handleLikePost}
             className="cursor-pointer"
           />
-          <p className="small-medium lg:base-medium">{ likes.length }</p>
+          <p className="small-medium lg:base-medium">{likes.length}</p>
         </div>
 
         <div className="flex-center gap-1">
           <img
-            src={ "/assets/icons/share.svg" }
+            src={"/assets/icons/share.svg"}
             alt="share"
-            width={ 22 }
-            height={ 22 }
-            onClick={ handleSharePost }
+            width={22}
+            height={22}
+            onClick={handleSharePost}
             className="cursor-pointer"
           />
           <p className="small-medium lg:base-medium">0</p>
         </div>
 
-        { showComments && (
+        {showComments && (
           <div className="flex-center gap-2">
             <img
-              src={ "/assets/icons/chat.svg" }
+              src={"/assets/icons/chat.svg"}
               alt="comment"
-              width={ 20 }
-              height={ 20 }
-              onClick={ () => setModalToOpen({ type: 'COMMENT', postId: post.$id }) }
+              width={20}
+              height={20}
+              onClick={() => setModalToOpen({ type: 'COMMENT', postId: post.$id })}
               className="cursor-pointer"
             />
-            <p className="small-medium lg:base-medium">{ comments || 0 }</p>
+            <p className="small-medium lg:base-medium">{comments || 0}</p>
           </div>
-        ) }
+        )}
       </div>
 
-      <div className={ cn("flex gap-2", {
+      <div className={cn("flex gap-2", {
         "ml-3": showComments === false
-      }) }>
-        { isSavingPost || isDeletingSavedPost ? (
+      })}>
+        {isSavingPost || isDeletingSavedPost ? (
           <Loader />
         ) : (
           <img
-            src={ isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg" }
+            src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
             alt="save"
-            width={ 20 }
-            height={ 20 }
-            onClick={ handleSavePost }
+            width={20}
+            height={20}
+            onClick={handleSavePost}
             className="cursor-pointer"
           />
-        ) }
+        )}
       </div>
     </div>
   );

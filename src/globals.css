@@ -10,7 +10,27 @@
   }
 
   body {
-    @apply bg-dark-1 text-white min-h-screen font-inter;
+    @apply bg-dark-1 text-white min-h-screen font-inter remove-scrollbar;
+  }
+  :root {
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -89,8 +109,13 @@
     @apply flex justify-start items-center;
   }
 
+  .remove-scrollbar::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
-    width: 3px;
+    width: 6px;
     height: 3px;
     border-radius: 2px;
   }
@@ -149,7 +174,12 @@
   }
 
   .home-creators {
-    @apply hidden xl:flex fixed right-0 border-l-light-3 h-svh flex-col w-72 2xl:w-465 px-6 py-10 gap-10 overflow-scroll custom-scrollbar;
+    @apply hidden xl:flex fixed right-0 border-l border-light-3/40 h-svh flex-col w-[20.3%] py-10 gap-10;
+  }
+
+  /* Story */
+  .story-editor {
+    @apply flex flex-col gap-4 w-full flex-1 h-[89vh] md:h-screen px-5 py-2 md:px-8 overflow-hidden;
   }
 
   /* Post Details */
@@ -158,11 +188,11 @@
   }
 
   .post_details-card {
-    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex flex-col xl:flex-row border h-[40rem] xl:h-[23.8rem] border-dark-4 xl:rounded-l-[24px] overflow-hidden;
+    @apply bg-dark-2 w-full max-w-5xl rounded-[30px] flex flex-col xl:flex-row border min-h-[40rem] xl:min-h-[23.8rem] border-dark-4 xl:rounded-l-[24px] overflow-hidden;
   }
 
   .post_details-img {
-    @apply object-contain w-full h-[20rem] xl:h-[23.8rem] rounded-t-[30px] xl:rounded-l-[24px] p-5 bg-dark-1;
+    @apply h-72 xs:h-[400px] lg:h-[380px] rounded-[24px] w-full bg-dark-1 object-center p-2 lg:p-1;
   }
 
   .post_details-info {
@@ -175,7 +205,7 @@
 
   /* Profile */
   .profile-container {
-    @apply flex flex-col min-h-screen items-center flex-1 gap-5 py-10 px-5 md:p-14;
+    @apply flex flex-col h-screen w-full lg:w-[75%] items-center gap-5 px-5 md:p-14 overflow-scroll custom-scrollbar;
   }
 
   .profile-tab {
@@ -184,7 +214,7 @@
 
   /* Saved */
   .saved-container {
-    @apply flex flex-col flex-1 items-center gap-10 overflow-scroll py-10 px-5 md:p-14 custom-scrollbar;
+    @apply flex flex-col flex-1 h-screen items-center gap-10 overflow-scroll py-10 pb-28 px-5 md:p-14 custom-scrollbar;
   }
 
   /* Notifications */
@@ -212,7 +242,7 @@
 
   /* Grid Post List */
   .grid-container {
-    @apply w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-7 max-w-5xl;
+    @apply w-full flex flex-1 flex-wrap gap-7 max-w-5xl;
   }
 
   .grid-post_link {

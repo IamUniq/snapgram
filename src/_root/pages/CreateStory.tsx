@@ -58,14 +58,14 @@ export default function CreateStoryPage() {
     }
 
     return (
-        <div className="relative flex-center h-[88vh] lg:h-[98vh] w-full lg:w-[30rem] mx-auto bg-dark-1">
+        <div className="relative story-editor">
             <StoryHeader
                 onClose={handleClose}
                 isPending={isSavingStory}
                 onPost={isCreatingStory ? handlePost : undefined}
             />
 
-            <section className="flex-center w-full h-full">
+            <section className="flex-center mx-auto w-full h-full">
                 {!isCreatingStory && (
                     <MediaSelector
                         setMediaType={setMediaType} onMediaSelect={handleMediaSelect}
@@ -77,7 +77,7 @@ export default function CreateStoryPage() {
                 {(isCreatingStory && mediaType !== "") && (mediaType === 'text' ? (
                     <TextEditorContainer />
                 ) : (
-                    <div className="flex items-center justify-center w-full h-full m-auto">
+                    <div className="bg-dark-4 w-full h-full px-1 flex-center">
                         {isVideo ? (
                             <video
                                 src={selectedMedia?.url!}
@@ -89,7 +89,7 @@ export default function CreateStoryPage() {
                             <img
                                 src={selectedMedia?.url || "/placeholder.svg"}
                                 alt="Story media"
-                                className="max-h-full max-w-full object-contain"
+                                className="size-auto object-cover object-center"
                             />
                         )}
                     </div>

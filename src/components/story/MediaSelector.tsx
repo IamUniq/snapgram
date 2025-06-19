@@ -69,7 +69,7 @@ export default function MediaSelector({ onTextSelect, onMediaSelect, setMediaTyp
     }
 
     return (
-        <div className="relative flex-center w-full mt-20 lg:mt-0">
+        <div className="relative flex-center w-full h-full mt-20 lg:mt-28">
             <div className="flex-center h-full gap-5">
                 {isCapturing ? (
                     <div className="relative w-full aspect-[12/16] bg-black rounded-lg overflow-hidden">
@@ -84,7 +84,7 @@ export default function MediaSelector({ onTextSelect, onMediaSelect, setMediaTyp
                         </Button>
                     </div>
                 ) : (
-                    <div className="flex-center flex-wrap lg:flex-row gap-4">
+                    <div className="flex-center flex-wrap gap-4 h-full">
                         <div
                             onClick={startCamera}
                             className="file_uploader-box bg-dark-3 w-40 h-40 lg:w-60 lg:h-60 rounded-xl cursor-pointer">
